@@ -299,7 +299,7 @@ index 0000000..0000000 100644
 -            lang = TranslateAlert2.getToLanguage();
 -            if (lang == null || lang.equals(getDialogDetectedLanguage(dialogId))) {
 +            lang = desu.inugram.helpers.translate.TranslateHelper.currentTargetLanguage();
-+            if (lang.equals(getDialogDetectedLanguage(dialogId))) {
++            if (lang.isEmpty() || lang.equals(getDialogDetectedLanguage(dialogId))) {
                  lang = currentLanguage();
              }
          }

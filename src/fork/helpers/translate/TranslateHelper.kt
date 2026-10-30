@@ -87,7 +87,7 @@ object TranslateHelper {
     // across ChatActionsHelper/TranslateHelper/InstantViewHelper before being collected here
     @JvmStatic
     fun currentTargetLanguage(): String =
-        InuConfig.TRANSLATE_TARGET_LANGUAGE.value.ifEmpty { TranslateAlert2.getToLanguage() }
+        InuConfig.TRANSLATE_TARGET_LANGUAGE.value.ifEmpty { TranslateAlert2.getToLanguage().orEmpty() }
 
     // entiny: what text typed in the input is translated into, apart from the language incoming messages are read in
     @JvmStatic
