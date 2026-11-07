@@ -24,7 +24,7 @@ object AwgEngine {
             try {
                 val cls = Class.forName("desu.inugram.awgproxy.Awgproxy")
                 cls.getMethod("start", String::class.java, String::class.java)
-                    .invoke(null, conf, AndroidUtilities.cacheDir.absolutePath)
+                    .invoke(null, conf, AndroidUtilities.getCacheDir().absolutePath)
                 InuConfig.AMNEZIA_SOCKS_PORT.value = port
                 Log.d(TAG, "awg socks on ${VpnTunnelManager.SOCKS_HOST}:$port")
             } catch (e: Throwable) {
