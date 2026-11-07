@@ -34,12 +34,15 @@ object VpnTunnelManager {
         if (raw.isEmpty()) return
         val parsed = VpnConfigParser.parse(raw) ?: return
         InuConfig.AMNEZIA_PROTOCOL.value = parsed.protocol
-        // entiny: engine bind lands here, port comes from Go SOCKS
-        activePort = InuConfig.AMNEZIA_SOCKS_PORT.value
+        activePort = when (parsed.protocol) {
+            VpnConfigParser.PROTOCOL_AWG -> AwgEngine.start(parsed.raw)
+            else -> 0
+        }
         Log.d(TAG, "vpn start protocol=${parsed.protocol} port=$activePort")
     }
 
     fun stop() {
+        AwgEngine.stop()
         activePort = 0
     }
 
