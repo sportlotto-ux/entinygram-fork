@@ -122,7 +122,7 @@ index 0000000..0000000 100644
                              final int id = viewerObject.getId();
                              mids.remove((Integer) id);
                              viewerObject.forceExpired = true;
-@@ -21363,6 +21364,7 @@ public class MessagesController extends BaseController implements NotificationCe
+@@ -21363,9 +21364,10 @@ public class MessagesController extends BaseController implements NotificationCe
                      getNotificationCenter().postNotificationName(NotificationCenter.messagesReadContent, key, value);
                  }
              }
@@ -130,6 +130,9 @@ index 0000000..0000000 100644
                  for (int a = 0, size = deletedMessagesFinal.size(); a < size; a++) {
                      long dialogId = deletedMessagesFinal.keyAt(a);
 +                    desu.inugram.helpers.security.SelfDestructHelper.filterTimedDeletions(currentAccount, deletedMessagesFinal.valueAt(a));
+                     ArrayList<Integer> arrayList = deletedMessagesFinal.valueAt(a);
+                     if (arrayList == null) {
+                         continue;
 diff --git a/TMessagesProj/src/main/java/org/telegram/messenger/MessagesStorage.java b/TMessagesProj/src/main/java/org/telegram/messenger/MessagesStorage.java
 index 0000000..0000000 100644
 --- a/TMessagesProj/src/main/java/org/telegram/messenger/MessagesStorage.java
