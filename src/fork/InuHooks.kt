@@ -47,6 +47,7 @@ object InuHooks {
         CrashReporter.install()
         InuConfig.load(context)
         desu.inugram.helpers.network.CensorshipHelper.init()
+        desu.inugram.helpers.network.VpnTunnelManager.init()
     }
 
     /**

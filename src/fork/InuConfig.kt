@@ -487,6 +487,18 @@ object InuConfig {
     val ANTICENSOR_WS_PORT = IntItem("anticensor_ws_port", 0, exportable = false)
 
     @JvmField
+    val AMNEZIA_ENABLED = BoolItem("amnezia_enabled", false)
+
+    @JvmField
+    val AMNEZIA_PROTOCOL = IntItem("amnezia_protocol", 0)
+
+    @JvmField
+    val AMNEZIA_CONFIG = StringItem("amnezia_config", "")
+
+    @JvmField
+    val AMNEZIA_SOCKS_PORT = IntItem("amnezia_socks_port", 0, exportable = false)
+
+    @JvmField
     val LEAK_GUARD = BoolItem("leak_guard", false)
 
     @JvmField
