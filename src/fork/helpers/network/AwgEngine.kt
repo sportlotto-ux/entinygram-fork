@@ -12,7 +12,7 @@ object AwgEngine {
     private val io = Executors.newSingleThreadExecutor { r -> Thread(r, "inu-awg-engine").apply { isDaemon = true } }
 
     fun isRunning(): Boolean = try {
-        Class.forName("desu.inugram.awgproxy.Awgproxy").getMethod("isRunning").invoke(null) as Boolean
+        Class.forName("desu.inugram.native.Awgproxy").getMethod("isRunning").invoke(null) as Boolean
     } catch (_: Throwable) {
         false
     }
@@ -22,7 +22,7 @@ object AwgEngine {
         val conf = ensureSocks(rawConf, port)
         io.execute {
             try {
-                val cls = Class.forName("desu.inugram.awgproxy.Awgproxy")
+                val cls = Class.forName("desu.inugram.native.Awgproxy")
                 cls.getMethod("start", String::class.java, String::class.java)
                     .invoke(null, conf, AndroidUtilities.getCacheDir().absolutePath)
                 InuConfig.AMNEZIA_SOCKS_PORT.value = port
@@ -37,7 +37,7 @@ object AwgEngine {
     fun stop() {
         io.execute {
             try {
-                Class.forName("desu.inugram.awgproxy.Awgproxy").getMethod("stop").invoke(null)
+                Class.forName("desu.inugram.native.Awgproxy").getMethod("stop").invoke(null)
             } catch (e: Throwable) {
                 Log.d(TAG, "awg stop failed: ${e.message}")
             }

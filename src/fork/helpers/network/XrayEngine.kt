@@ -11,7 +11,7 @@ object XrayEngine {
     private val io = Executors.newSingleThreadExecutor { r -> Thread(r, "inu-xray-engine").apply { isDaemon = true } }
 
     fun isRunning(): Boolean = try {
-        Class.forName("desu.inugram.xrayproxy.Xrayproxy").getMethod("isRunning").invoke(null) as Boolean
+        Class.forName("desu.inugram.native.Xrayproxy").getMethod("isRunning").invoke(null) as Boolean
     } catch (_: Throwable) {
         false
     }
@@ -20,7 +20,7 @@ object XrayEngine {
         val port = freePort()
         io.execute {
             try {
-                val cls = Class.forName("desu.inugram.xrayproxy.Xrayproxy")
+                val cls = Class.forName("desu.inugram.native.Xrayproxy")
                 cls.getMethod("start", String::class.java, java.lang.Integer.TYPE)
                     .invoke(null, vlessUri, port)
                 InuConfig.AMNEZIA_SOCKS_PORT.value = port
@@ -36,7 +36,7 @@ object XrayEngine {
     fun stop() {
         io.execute {
             try {
-                Class.forName("desu.inugram.xrayproxy.Xrayproxy").getMethod("stop").invoke(null)
+                Class.forName("desu.inugram.native.Xrayproxy").getMethod("stop").invoke(null)
             } catch (e: Throwable) {
                 Log.d(TAG, "xray stop failed: ${e.message}")
             }

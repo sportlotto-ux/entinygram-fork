@@ -1,16 +1,22 @@
-module xrayproxy
+module native
 
 go 1.27
 
 require (
+	github.com/amnezia-vpn/amneziawg-go v0.2.16
+	github.com/bropines/awg-wireproxy v1.2.1
+	github.com/things-go/go-socks5 v0.1.1
 	github.com/xtls/xray-core v1.260327.1-0.20261031132019-a4a3dff5b20c // v26.10.31
 	golang.org/x/mobile v0.0.0-20260312152759-81488f6aeb60
 )
 
 require (
+	github.com/MakeNowJust/heredoc/v2 v2.0.1 // indirect
 	github.com/andybalholm/brotli v1.2.3 // indirect
 	github.com/apernet/quic-go v0.61.1-0.20260806010916-184d081eef3e // indirect
 	github.com/ghodss/yaml v1.0.1-0.20220118164431-d8423dcdf344 // indirect
+	github.com/go-ini/ini v1.67.0 // indirect
+	github.com/google/btree v1.1.3 // indirect
 	github.com/google/gopacket v1.1.19 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
@@ -47,6 +53,7 @@ require (
 	golang.org/x/sync v0.24.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
+	golang.org/x/time v0.14.0 // indirect
 	golang.org/x/tools v0.51.0 // indirect
 	golang.zx2c4.com/wintun v0.0.0-20230126152724-0fa3db229ce2 // indirect
 	golang.zx2c4.com/wireguard v0.0.0-20250521234502-f333402bd9cb // indirect
@@ -55,6 +62,7 @@ require (
 	google.golang.org/grpc v1.84.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gvisor.dev/gvisor v0.0.0-20260122175437-89a5d21be8f0 // indirect
 	layeh.com/gopher-luar v1.0.11 // indirect
 	lukechampine.com/blake3 v1.4.1 // indirect
 )

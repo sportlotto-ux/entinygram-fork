@@ -349,7 +349,7 @@ func Start(configStr string, cacheDir string) error {
 		sl, err := net.Listen("tcp", socksAddr)
 		if err == nil {
 			socksListener = sl
-			
+
 			hasCredentials := socksUser != "" && socksPass != ""
 
 			stealthL := &stealthListener{
