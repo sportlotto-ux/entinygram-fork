@@ -193,26 +193,41 @@ func buildConfig(raw string, socksPort int) (string, error) {
 	return string(b), nil
 }
 
+// entiny: fixed chrome presets older than 131 fail reality auth with this uTLS build
+func normalizeFingerprint(fp string) string {
+	if fp == "" {
+		return "chrome"
+	}
+	rest, ok := strings.CutPrefix(fp, "hellochrome_")
+	if !ok {
+		return fp
+	}
+	end := 0
+	for end < len(rest) && rest[end] >= '0' && rest[end] <= '9' {
+		end++
+	}
+	if end == 0 {
+		return fp
+	}
+	if v, err := strconv.Atoi(rest[:end]); err == nil && v < 131 {
+		return "hellochrome_131"
+	}
+	return fp
+}
+
 func streamSettings(p *vlessParams) map[string]any {
 	s := map[string]any{"network": p.network, "security": p.security}
 	switch p.security {
 	case "reality":
-		r := map[string]any{
+		s["realitySettings"] = map[string]any{
 			"serverName":  p.sni,
 			"publicKey":   p.publicKey,
 			"shortId":     p.shortID,
 			"spiderX":     p.spiderX,
-			"fingerprint": p.fingerprint,
+			"fingerprint": normalizeFingerprint(p.fingerprint),
 		}
-		if p.fingerprint == "" {
-			r["fingerprint"] = "chrome"
-		}
-		s["realitySettings"] = r
 	case "tls":
-		t := map[string]any{"serverName": p.sni}
-		if p.fingerprint != "" {
-			t["fingerprint"] = p.fingerprint
-		}
+		t := map[string]any{"serverName": p.sni, "fingerprint": normalizeFingerprint(p.fingerprint)}
 		s["tlsSettings"] = t
 	}
 	switch p.network {
