@@ -215,7 +215,7 @@ jobs:
           gomobile init
           cd src/fork-go/native
           go mod tidy
-          gomobile bind -target=android/arm64 -androidapi 24 -javapkg=desu.inugram.native -ldflags=-checklinkname=0 -o native.aar ./awgproxy ./xrayproxy
+          gomobile bind -target=android/arm64 -androidapi 24 -javapkg=desu.inugram.engine -ldflags=-checklinkname=0 -o native.aar ./awgproxy ./xrayproxy
           mkdir -p "$GITHUB_WORKSPACE/out-go"
           cp native.aar "$GITHUB_WORKSPACE/out-go/"
           ls -lh native.aar
