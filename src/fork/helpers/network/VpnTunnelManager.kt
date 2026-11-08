@@ -36,6 +36,7 @@ object VpnTunnelManager {
         InuConfig.AMNEZIA_PROTOCOL.value = parsed.protocol
         activePort = when (parsed.protocol) {
             VpnConfigParser.PROTOCOL_AWG -> AwgEngine.start(parsed.raw)
+            VpnConfigParser.PROTOCOL_XRAY -> XrayEngine.start(parsed.raw)
             else -> 0
         }
         Log.d(TAG, "vpn start protocol=${parsed.protocol} port=$activePort")
@@ -43,6 +44,7 @@ object VpnTunnelManager {
 
     fun stop() {
         AwgEngine.stop()
+        XrayEngine.stop()
         activePort = 0
     }
 

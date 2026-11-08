@@ -206,7 +206,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.26'
+          go-version: '1.27'
 
       - name: Build awgproxy AAR
         timeout-minutes: 25
@@ -220,13 +220,23 @@ jobs:
           cp awgproxy.aar "$GITHUB_WORKSPACE/out-go/"
           ls -lh awgproxy.aar
 
-      - name: Install awgproxy into worktrees
+      - name: Build xrayproxy AAR
+        timeout-minutes: 45
+        run: |
+          cd src/fork-go/xrayproxy
+          go mod tidy
+          gomobile bind -target=android/arm64 -androidapi 24 -javapkg=desu.inugram.xrayproxy -o xrayproxy.aar .
+          mkdir -p "$GITHUB_WORKSPACE/out-go"
+          cp xrayproxy.aar "$GITHUB_WORKSPACE/out-go/"
+          ls -lh xrayproxy.aar
+
+      - name: Install native engines into worktrees
         run: |
           for d in worktree-pluginless worktree; do
             [ -d "$d" ] || continue
             mkdir -p "$d/TMessagesProj/libs"
-            cp "$GITHUB_WORKSPACE/out-go/awgproxy.aar" "$d/TMessagesProj/libs/awgproxy.aar"
-            echo "installed into $d/TMessagesProj/libs/awgproxy.aar"
+            cp "$GITHUB_WORKSPACE"/out-go/*.aar "$d/TMessagesProj/libs/"
+            echo "$d: $(ls "$d/TMessagesProj/libs/")"
           done
 
       - name: Reset ccache stats

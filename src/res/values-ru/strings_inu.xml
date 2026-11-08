@@ -1747,7 +1747,6 @@
     <string name="InuVpnRemoveConfirm">Сохранённая конфигурация будет удалена, туннель остановлен.</string>
     <string name="InuVpnFooter">Поддерживаются AmneziaWG (.conf), Amnezia (.vpn) и VLESS (vless://). Ключи остаются на устройстве.</string>
     <string name="InuVpnBadConfig">Неподдерживаемая конфигурация</string>
-    <string name="InuVpnVlessSoon">Туннель через VLESS пока недоступен</string>
     <string name="InuVpnImported">Конфигурация импортирована</string>
     <string name="InuDatacenterStatus">Статус дата-центров</string>
     <string name="InuDatacenterStatusAbout">Проверка доступности и задержки к дата-центрам Telegram.</string>

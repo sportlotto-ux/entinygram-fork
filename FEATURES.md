@@ -57,7 +57,7 @@ our own layer on top of the inugram patchset: restricted Telegram features, priv
 - 📡 **censorship bypass**:
   - **WebSocket tunnel**: connect through Telegram Web endpoints, no third-party servers; excluded from settings backups - *inspired by [tg-ws-proxy](https://github.com/Flowseal/tg-ws-proxy) (@Flowseal) and [NimarkoGram](https://github.com/Ettacent/NimarkoGram)*
   - **block direct connections**: extra requests go only through your SOCKS5 proxy
-  - **VPN tunnel**: native AmneziaWG engine, import `.conf` / `.vpn` configs from a file or clipboard
+  - **VPN tunnel**: native AmneziaWG and VLESS (Reality) engines, import `.conf` / `.vpn` / `vless://` from a file or clipboard
 - 📡 **datacenter status**: live ping for DC1–DC5 - *inspired by [Nekogram](https://github.com/Nekogram/Nekogram) / [NagramX](https://github.com/temporaryna/NagramXTurbo)*
 - 📡 **adblock & content filtering**:
   - hide sponsored messages

@@ -1897,7 +1897,6 @@
     <string name="InuVpnRemoveConfirm">The saved configuration will be deleted and the tunnel stopped.</string>
     <string name="InuVpnFooter">Supports AmneziaWG (.conf), Amnezia (.vpn) and VLESS (vless://). Keys stay on this device.</string>
     <string name="InuVpnBadConfig">Unsupported configuration</string>
-    <string name="InuVpnVlessSoon">VLESS tunneling is not available yet</string>
     <string name="InuVpnImported">Configuration imported</string>
     <string name="InuDatacenterStatus">Datacenter status</string>
     <string name="InuDatacenterStatusAbout">Check the status and round-trip latency of Telegram\'s **datacenters**.</string>

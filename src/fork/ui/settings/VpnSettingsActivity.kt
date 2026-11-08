@@ -65,14 +65,6 @@ class VpnSettingsActivity : SettingsPageActivity() {
                         .show()
                     return
                 }
-                if (enable && InuConfig.AMNEZIA_PROTOCOL.value == VpnConfigParser.PROTOCOL_XRAY) {
-                    item.checked = false
-                    (view as? NotificationsCheckCell)?.isChecked = false
-                    BulletinFactory.of(this)
-                        .createErrorBulletin(LocaleController.getString(R.string.InuVpnVlessSoon))
-                        .show()
-                    return
-                }
                 VpnTunnelManager.setEnabled(enable)
                 (view as? NotificationsCheckCell)?.isChecked = enable
             }
