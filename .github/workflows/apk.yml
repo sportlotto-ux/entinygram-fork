@@ -225,7 +225,7 @@ jobs:
         run: |
           cd src/fork-go/xrayproxy
           go mod tidy
-          gomobile bind -target=android/arm64 -androidapi 24 -javapkg=desu.inugram.xrayproxy -o xrayproxy.aar .
+          gomobile bind -target=android/arm64 -androidapi 24 -javapkg=desu.inugram.xrayproxy -ldflags=-checklinkname=0 -o xrayproxy.aar .
           mkdir -p "$GITHUB_WORKSPACE/out-go"
           cp xrayproxy.aar "$GITHUB_WORKSPACE/out-go/"
           ls -lh xrayproxy.aar
