@@ -1,4 +1,8 @@
 {
+  "entinyGram 13.1.1-c8db1d2 (2026110800)": {
+    "ua": "### Added:\n• monet material 3 style\n• unread chats first\n• forward pro editor screen\n\n### Fixed:\n• profile crash on row add animation\n• chat export own media\n• chat export structure\n• forward pro replaces forward\n• Синхронізовано з останнім кодом inugram",
+    "en": "### Added:\n• monet material 3 style\n• unread chats first\n• forward pro editor screen\n\n### Fixed:\n• profile crash on row add animation\n• chat export own media\n• chat export structure\n• forward pro replaces forward\n• Synced with the latest inugram code"
+  },
   "entinyGram 13.1.1-42bae2d (2026110800)": {
     "ua": "### Added:\n• monet material 3 style\n• unread chats first\n• forward pro editor screen\n\n### Rewrited:\n• wide posts preview debug log\n\n### Fixed:\n• online tracking for non contacts\n• wide posts preview meta\n• unlimited saved gifs\n• profile crash on row add animation\n• chat export own media\n• chat export structure\n• forward pro replaces forward\n• Синхронізовано з останнім кодом inugram",
     "en": "### Added:\n• monet material 3 style\n• unread chats first\n• forward pro editor screen\n\n### Rewrited:\n• wide posts preview debug log\n\n### Fixed:\n• online tracking for non contacts\n• wide posts preview meta\n• unlimited saved gifs\n• profile crash on row add animation\n• chat export own media\n• chat export structure\n• forward pro replaces forward\n• Synced with the latest inugram code"
