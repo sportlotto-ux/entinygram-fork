@@ -529,10 +529,23 @@ jobs:
             fi
           fi
 
+      - name: Check Telegram secrets
+        id: tg
+        env:
+          TELEGRAM_API_ID:    ${{ secrets.TELEGRAM_API_ID }}
+          TELEGRAM_API_HASH:  ${{ secrets.TELEGRAM_API_HASH }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          if [ -n "$TELEGRAM_API_ID" ] && [ -n "$TELEGRAM_API_HASH" ] && [ -n "$TELEGRAM_BOT_TOKEN" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Upload to Telegram (CI channel + optional main channel)
-        # Optional integration: skipped entirely until the Telegram secrets are configured,
-        # so a missing/broken channel never hides the fact that the APKs were built.
-        if: ${{ secrets.TELEGRAM_API_ID != '' && secrets.TELEGRAM_API_HASH != '' && secrets.TELEGRAM_BOT_TOKEN != '' }}
+        # Optional integration: skipped until the Telegram secrets are configured, so a
+        # missing channel never hides the fact that the APKs were built (and never turns red).
+        if: ${{ steps.tg.outputs.enabled == 'true' }}
         env:
           TELEGRAM_API_ID:       ${{ secrets.TELEGRAM_API_ID }}
           TELEGRAM_API_HASH:     ${{ secrets.TELEGRAM_API_HASH }}
