@@ -530,6 +530,9 @@ jobs:
           fi
 
       - name: Upload to Telegram (CI channel + optional main channel)
+        # Optional integration: skipped entirely until the Telegram secrets are configured,
+        # so a missing/broken channel never hides the fact that the APKs were built.
+        if: ${{ secrets.TELEGRAM_API_ID != '' && secrets.TELEGRAM_API_HASH != '' && secrets.TELEGRAM_BOT_TOKEN != '' }}
         env:
           TELEGRAM_API_ID:       ${{ secrets.TELEGRAM_API_ID }}
           TELEGRAM_API_HASH:     ${{ secrets.TELEGRAM_API_HASH }}
