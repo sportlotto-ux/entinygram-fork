@@ -47,7 +47,6 @@ object InuHooks {
         CrashReporter.install()
         InuConfig.load(context)
         desu.inugram.helpers.network.CensorshipHelper.init()
-        desu.inugram.helpers.network.VpnTunnelManager.init()
     }
 
     /**
@@ -64,6 +63,7 @@ object InuHooks {
         syncAnimationSpeed()
         syncChatInputRowHeight()
         desu.inugram.helpers.archive.ArchiveScope.init()
+        desu.inugram.helpers.network.VpnTunnelManager.init()
         desu.inugram.helpers.media.DownloadKeepAliveHelper.startPolling()
         (context.applicationContext as? android.app.Application)?.let { desu.inugram.helpers.MemoryTrimHelper.init(it) }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

@@ -9,7 +9,6 @@ import org.telegram.tgnet.ConnectionsManager
 
 object VpnTunnelManager {
     private const val TAG = "InuVpn"
-    private const val KEY_START_PENDING = "amnezia_start_pending"
     private const val START_DELAY_MS = 3000L
     private const val READY_SETTLE_MS = 4000L
 
@@ -87,15 +86,14 @@ object VpnTunnelManager {
         }
     }
 
-    private fun isStartPending(): Boolean =
-        MessagesController.getGlobalMainSettings().getBoolean(KEY_START_PENDING, false)
+    private fun isStartPending(): Boolean = InuConfig.AMNEZIA_START_PENDING.value
 
     private fun markPending() {
-        MessagesController.getGlobalMainSettings().edit().putBoolean(KEY_START_PENDING, true).apply()
+        InuConfig.AMNEZIA_START_PENDING.value = true
     }
 
     private fun clearPending() {
-        MessagesController.getGlobalMainSettings().edit().putBoolean(KEY_START_PENDING, false).apply()
+        InuConfig.AMNEZIA_START_PENDING.value = false
     }
 
     private fun reapplyProxy() {
