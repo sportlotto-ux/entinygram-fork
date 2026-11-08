@@ -1,43 +1,47 @@
 package desu.inugram.helpers.network
 
 import android.util.Log
-import desu.inugram.InuConfig
 import org.telegram.messenger.AndroidUtilities
+import java.lang.reflect.InvocationTargetException
 import java.net.ServerSocket
 import java.util.concurrent.Executors
 
 object AwgEngine {
     private const val TAG = "InuAwg"
+    private const val CLASS_NAME = "desu.inugram.engine.awgproxy.Awgproxy"
 
     private val io = Executors.newSingleThreadExecutor { r -> Thread(r, "inu-awg-engine").apply { isDaemon = true } }
 
     fun isRunning(): Boolean = try {
-        Class.forName("desu.inugram.engine.awgproxy.Awgproxy").getMethod("isRunning").invoke(null) as Boolean
+        Class.forName(CLASS_NAME).getMethod("isRunning").invoke(null) as Boolean
     } catch (_: Throwable) {
         false
     }
 
-    fun start(rawConf: String): Int {
+    fun start(rawConf: String) {
         val port = freePort()
         val conf = ensureSocks(rawConf, port)
         io.execute {
             try {
-                val cls = Class.forName("desu.inugram.engine.awgproxy.Awgproxy")
+                Log.d(TAG, "loading engine")
+                val cls = Class.forName(CLASS_NAME)
+                Log.d(TAG, "engine loaded, starting on $port")
                 cls.getMethod("start", String::class.java, String::class.java)
                     .invoke(null, conf, AndroidUtilities.getCacheDir().absolutePath)
-                InuConfig.AMNEZIA_SOCKS_PORT.value = port
                 Log.d(TAG, "awg socks on ${VpnTunnelManager.SOCKS_HOST}:$port")
+                VpnTunnelManager.onEngineReady(port)
             } catch (e: Throwable) {
-                Log.d(TAG, "awg start failed: ${e.message}")
+                val cause = (e as? InvocationTargetException)?.targetException ?: e
+                Log.d(TAG, "awg start failed: ${cause.javaClass.simpleName}: ${cause.message}")
+                VpnTunnelManager.onEngineFailed(cause.message)
             }
         }
-        return port
     }
 
     fun stop() {
         io.execute {
             try {
-                Class.forName("desu.inugram.engine.awgproxy.Awgproxy").getMethod("stop").invoke(null)
+                Class.forName(CLASS_NAME).getMethod("stop").invoke(null)
             } catch (e: Throwable) {
                 Log.d(TAG, "awg stop failed: ${e.message}")
             }

@@ -67,12 +67,25 @@ class VpnSettingsActivity : SettingsPageActivity() {
                 }
                 VpnTunnelManager.setEnabled(enable)
                 (view as? NotificationsCheckCell)?.isChecked = enable
+                if (enable) checkEngineStarted()
             }
 
             BTN_IMPORT -> launchImport()
             BTN_PASTE -> importFromClipboard()
             BTN_REMOVE -> confirmRemove()
         }
+    }
+
+    private fun checkEngineStarted() {
+        Utilities.globalQueue.postRunnable({
+            AndroidUtilities.runOnUIThread {
+                if (!isAdded || InuConfig.AMNEZIA_ENABLED.value) return@runOnUIThread
+                listView?.adapter?.update(true)
+                BulletinFactory.of(this)
+                    .createErrorBulletin(LocaleController.getString(R.string.InuVpnEngineFailed))
+                    .show()
+            }
+        }, 3500)
     }
 
     private fun launchImport() {

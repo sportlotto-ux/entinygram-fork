@@ -1748,6 +1748,7 @@
     <string name="InuVpnFooter">Поддерживаются AmneziaWG (.conf), Amnezia (.vpn) и VLESS (vless://). Ключи остаются на устройстве.</string>
     <string name="InuVpnBadConfig">Неподдерживаемая конфигурация</string>
     <string name="InuVpnImported">Конфигурация импортирована</string>
+    <string name="InuVpnEngineFailed">Не удалось запустить туннель</string>
     <string name="InuDatacenterStatus">Статус дата-центров</string>
     <string name="InuDatacenterStatusAbout">Проверка доступности и задержки к дата-центрам Telegram.</string>
     <string name="InuDatacenterYourDc">Ваш DC</string>

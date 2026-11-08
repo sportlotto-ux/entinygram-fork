@@ -1898,6 +1898,7 @@
     <string name="InuVpnFooter">Supports AmneziaWG (.conf), Amnezia (.vpn) and VLESS (vless://). Keys stay on this device.</string>
     <string name="InuVpnBadConfig">Unsupported configuration</string>
     <string name="InuVpnImported">Configuration imported</string>
+    <string name="InuVpnEngineFailed">Tunnel failed to start</string>
     <string name="InuDatacenterStatus">Datacenter status</string>
     <string name="InuDatacenterStatusAbout">Check the status and round-trip latency of Telegram\'s **datacenters**.</string>
     <string name="InuDatacenterYourDc">Your DC</string>
