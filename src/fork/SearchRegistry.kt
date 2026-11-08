@@ -38,6 +38,7 @@ import desu.inugram.ui.settings.RegexFilterSettingsActivity
 import desu.inugram.ui.settings.SettingsPageActivity
 import desu.inugram.ui.settings.StalkerPackSettingsActivity
 import desu.inugram.ui.settings.TosSettingsActivity
+import desu.inugram.ui.settings.VpnSettingsActivity
 import desu.inugram.ui.settings.TranslatorSettingsActivity
 import desu.inugram.ui.settings.WeatherLocationActivity
 import desu.inugram.ui.settings.fonts.FontStackActivity
@@ -101,6 +102,7 @@ object SearchRegistry {
             PrivacySecurityActivity.PAGE,
             ParanoiaActivity.PAGE,
             AntiCensorshipSettingsActivity.PAGE,
+            VpnSettingsActivity.PAGE,
             DatacenterStatusActivity.PAGE,
             BackupSettingsActivity.PAGE,
             FeedExcludedChannelsSettingsActivity.PAGE,

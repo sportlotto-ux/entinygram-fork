@@ -46,6 +46,12 @@ object VpnTunnelManager {
         activePort = 0
     }
 
+    fun restart() {
+        stop()
+        if (InuConfig.AMNEZIA_ENABLED.value) start()
+        Utilities.globalQueue.postRunnable { reapplyProxy() }
+    }
+
     private fun reapplyProxy() {
         if (isActive()) {
             ConnectionsManager.setProxySettings(true, SOCKS_HOST, activePort, "", "", "")

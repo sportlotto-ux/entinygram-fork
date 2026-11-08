@@ -26,6 +26,14 @@ class AntiCensorshipSettingsActivity : SettingsPageActivity() {
             )
         )
         items.add(UItem.asShadow(LocaleController.getString(R.string.InuWsTunnelFooter)))
+        items.add(
+            mkIconSubPageButton(
+                BUTTON_VPN,
+                R.drawable.inu_tabler_shield_lock,
+                LocaleController.getString(R.string.InuVpn),
+                VpnSettingsActivity.statusText(),
+            )
+        )
 
         items.add(UItem.asHeader(LocaleController.getString(R.string.InuAntiCensorshipPrivacy)))
         items.add(
@@ -52,12 +60,15 @@ class AntiCensorshipSettingsActivity : SettingsPageActivity() {
                 val new = InuConfig.LEAK_GUARD.toggle()
                 (view as? NotificationsCheckCell)?.isChecked = new
             }
+
+            BUTTON_VPN -> presentFragment(VpnSettingsActivity())
         }
     }
 
     companion object {
         private val TOGGLE_WS_TUNNEL = InuUtils.generateId()
         private val TOGGLE_LEAK_GUARD = InuUtils.generateId()
+        private val BUTTON_VPN = InuUtils.generateId()
 
         @JvmField val PAGE = SearchRegistry.Page(
             slug = "anti-censorship",
