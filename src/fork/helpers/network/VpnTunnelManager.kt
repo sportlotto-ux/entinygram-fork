@@ -106,11 +106,14 @@ object VpnTunnelManager {
     // entiny: the tunnel lives in this process, the stock keep-alive service keeps the process out of cached
     private fun ensureKeepAlive() {
         AndroidUtilities.runOnUIThread {
-            if (isKeepAliveEnabled()) return@runOnUIThread
-            setKeepAlivePref(true)
+            if (!isKeepAliveEnabled()) setKeepAlivePref(true)
+            if (!isPushConnectionEnabled()) {
+                setPushConnectionPref(true)
+                applyPushConnection(true)
+                Log.d(TAG, "background connection enabled")
+            }
             InuConfig.AMNEZIA_KEEPALIVE_SET.value = true
             ApplicationLoader.startPushService()
-            Log.d(TAG, "keep-alive service enabled")
         }
     }
 
@@ -119,8 +122,10 @@ object VpnTunnelManager {
         InuConfig.AMNEZIA_KEEPALIVE_SET.value = false
         AndroidUtilities.runOnUIThread {
             setKeepAlivePref(false)
+            setPushConnectionPref(false)
+            applyPushConnection(false)
             ApplicationLoader.startPushService()
-            Log.d(TAG, "keep-alive service disabled")
+            Log.d(TAG, "keep-alive and background connection disabled")
         }
     }
 
@@ -134,6 +139,24 @@ object VpnTunnelManager {
         MessagesController.getGlobalNotificationsSettings().edit().putBoolean("pushService", enabled).apply()
         val account = UserConfig.selectedAccount
         if (account > 0) MessagesController.getNotificationsSettings(account).edit().putBoolean("pushService", enabled).apply()
+    }
+
+    private fun isPushConnectionEnabled(): Boolean {
+        val prefs = MessagesController.getGlobalNotificationsSettings()
+        if (prefs.contains("pushConnection")) return prefs.getBoolean("pushConnection", true)
+        return MessagesController.getMainSettings(UserConfig.selectedAccount.coerceAtLeast(0)).getBoolean("backgroundConnection", false)
+    }
+
+    private fun setPushConnectionPref(enabled: Boolean) {
+        MessagesController.getGlobalNotificationsSettings().edit().putBoolean("pushConnection", enabled).apply()
+        val account = UserConfig.selectedAccount
+        if (account > 0) MessagesController.getNotificationsSettings(account).edit().putBoolean("pushConnection", enabled).apply()
+    }
+
+    private fun applyPushConnection(enabled: Boolean) {
+        val account = UserConfig.selectedAccount
+        if (account < 0) return
+        ConnectionsManager.getInstance(account).setPushConnectionEnabled(enabled)
     }
 
     private fun reapplyProxy() {
