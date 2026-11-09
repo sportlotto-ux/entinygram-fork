@@ -2,8 +2,11 @@ package desu.inugram.helpers.network
 
 import android.util.Log
 import desu.inugram.InuConfig
+import org.telegram.messenger.AndroidUtilities
+import org.telegram.messenger.ApplicationLoader
 import org.telegram.messenger.MessagesController
 import org.telegram.messenger.SharedConfig
+import org.telegram.messenger.UserConfig
 import org.telegram.messenger.Utilities
 import org.telegram.tgnet.ConnectionsManager
 
@@ -44,6 +47,7 @@ object VpnTunnelManager {
         if (raw.isEmpty()) return
         val parsed = VpnConfigParser.parse(raw) ?: return
         InuConfig.AMNEZIA_PROTOCOL.value = parsed.protocol
+        ensureKeepAlive()
         markPending()
         Log.d(TAG, "vpn start protocol=${parsed.protocol}")
         when (parsed.protocol) {
@@ -58,6 +62,7 @@ object VpnTunnelManager {
         XrayEngine.stop()
         activePort = 0
         clearPending()
+        releaseKeepAlive()
     }
 
     fun restart() {
@@ -94,6 +99,39 @@ object VpnTunnelManager {
 
     private fun clearPending() {
         InuConfig.AMNEZIA_START_PENDING.value = false
+    }
+
+    // entiny: the tunnel lives in this process, the stock keep-alive service keeps the process out of cached
+    private fun ensureKeepAlive() {
+        AndroidUtilities.runOnUIThread {
+            if (isKeepAliveEnabled()) return@runOnUIThread
+            setKeepAlivePref(true)
+            InuConfig.AMNEZIA_KEEPALIVE_SET.value = true
+            ApplicationLoader.startPushService()
+            Log.d(TAG, "keep-alive service enabled")
+        }
+    }
+
+    private fun releaseKeepAlive() {
+        if (!InuConfig.AMNEZIA_KEEPALIVE_SET.value) return
+        InuConfig.AMNEZIA_KEEPALIVE_SET.value = false
+        AndroidUtilities.runOnUIThread {
+            setKeepAlivePref(false)
+            ApplicationLoader.startPushService()
+            Log.d(TAG, "keep-alive service disabled")
+        }
+    }
+
+    private fun isKeepAliveEnabled(): Boolean {
+        val prefs = MessagesController.getGlobalNotificationsSettings()
+        if (prefs.contains("pushService")) return prefs.getBoolean("pushService", true)
+        return MessagesController.getMainSettings(UserConfig.selectedAccount.coerceAtLeast(0)).getBoolean("keepAliveService", false)
+    }
+
+    private fun setKeepAlivePref(enabled: Boolean) {
+        MessagesController.getGlobalNotificationsSettings().edit().putBoolean("pushService", enabled).apply()
+        val account = UserConfig.selectedAccount
+        if (account > 0) MessagesController.getNotificationsSettings(account).edit().putBoolean("pushService", enabled).apply()
     }
 
     private fun reapplyProxy() {
