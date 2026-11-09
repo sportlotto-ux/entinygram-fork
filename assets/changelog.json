@@ -1,4 +1,8 @@
 {
+  "entinyGram 13.1.1-9ed6dc2 (2026110900)": {
+    "ua": "### Fixed:\n• У цій збірці змін немає.\n• Синхронізовано з останнім кодом inugram",
+    "en": "### Fixed:\n• No changes in this build.\n• Synced with the latest inugram code"
+  },
   "entinyGram 13.1.1-d6c35f8 (2026110900)": {
     "ua": "### Added:\n• unread chats first\n• forward pro editor screen\n\n### Fixed:\n• forward pro replaces forward\n• Синхронізовано з останнім кодом inugram",
     "en": "### Added:\n• unread chats first\n• forward pro editor screen\n\n### Fixed:\n• forward pro replaces forward\n• Synced with the latest inugram code"
