@@ -1,4 +1,8 @@
 {
+  "entinyGram 13.1.1-d6c35f8 (2026110900)": {
+    "ua": "### Added:\n• unread chats first\n• forward pro editor screen\n\n### Fixed:\n• forward pro replaces forward\n• Синхронізовано з останнім кодом inugram",
+    "en": "### Added:\n• unread chats first\n• forward pro editor screen\n\n### Fixed:\n• forward pro replaces forward\n• Synced with the latest inugram code"
+  },
   "entinyGram 13.1.1-ddac017 (2026110800)": {
     "ua": "### Added:\n• monet material 3 style\n• unread chats first\n• forward pro editor screen\n\n### Fixed:\n• chat export structure\n• forward pro replaces forward\n• Синхронізовано з останнім кодом inugram",
     "en": "### Added:\n• monet material 3 style\n• unread chats first\n• forward pro editor screen\n\n### Fixed:\n• chat export structure\n• forward pro replaces forward\n• Synced with the latest inugram code"
