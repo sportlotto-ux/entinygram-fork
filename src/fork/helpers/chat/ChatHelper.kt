@@ -2,6 +2,7 @@ package desu.inugram.helpers.chat
 
 import desu.inugram.helpers.archive.DeletedMessagesHelper
 import desu.inugram.helpers.archive.EditHistoryHelper
+import desu.inugram.helpers.network.VpnTunnelManager
 import android.Manifest
 import android.content.ClipData
 import android.content.Context
@@ -2731,17 +2732,22 @@ object ChatHelper {
 
             else -> LocaleController.getString(R.string.AppName)
         }
-        if (GhostHelper.isGhostActive() && !InuConfig.GHOST_HIDE_APP_BAR_ICON.value) {
-            val ssb = SpannableStringBuilder("  ").append(baseTitle)
-            val span = ColoredImageSpan(R.drawable.inu_ghost_filled, ColoredImageSpan.ALIGN_CENTER).apply {
+        val icons = ArrayList<Int>(2)
+        if (GhostHelper.isGhostActive() && !InuConfig.GHOST_HIDE_APP_BAR_ICON.value) icons.add(R.drawable.inu_ghost_filled)
+        if (VpnTunnelManager.isActive()) icons.add(R.drawable.inu_tabler_shield_lock)
+        if (icons.isEmpty()) return baseTitle
+        val ssb = SpannableStringBuilder()
+        for (i in icons.indices) {
+            ssb.append("  ")
+            val span = ColoredImageSpan(icons[i], ColoredImageSpan.ALIGN_CENTER).apply {
                 setSize(AndroidUtilities.dp(20f))
                 setTranslateX(AndroidUtilities.dp(-2f).toFloat())
                 setOverrideColor(Theme.getColor(Theme.key_actionBarDefaultSubtitle))
             }
-            ssb.setSpan(span, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            return ssb
+            ssb.setSpan(span, i * 2, i * 2 + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
-        return baseTitle
+        ssb.append(baseTitle)
+        return ssb
     }
 
     private fun getFirstNameOrDefault(user: TLRPC.User?): String {

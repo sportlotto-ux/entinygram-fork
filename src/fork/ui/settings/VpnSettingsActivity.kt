@@ -67,6 +67,7 @@ class VpnSettingsActivity : SettingsPageActivity() {
                 }
                 VpnTunnelManager.setEnabled(enable)
                 (view as? NotificationsCheckCell)?.isChecked = enable
+                AndroidUtilities.runOnUIThread({ softRebuild() }, 1500L)
                 if (enable) checkEngineStarted()
             }
 
