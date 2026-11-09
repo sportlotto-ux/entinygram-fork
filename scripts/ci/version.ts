@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process'
 import fs from 'node:fs/promises'
 
 // main APK is the pluginless build, so its version props come from that worktree
@@ -24,12 +25,37 @@ const dd = String(now.getUTCDate()).padStart(2, '0')
 const date = `${y4}${mm}${dd}`
 const yyyymmdd = Number(date)
 
-// dailyCounter = how many releases have already shipped today (0-indexed), persisted across
-// runs as INU_DAY_STATE = "YYYYMMDD:N" (see apk.yml "Bump build variables"). Resets to 0 the
-// first time `date` changes -- this is a real same-day release slot: 00, 01, 02, ...
+// dailyCounter = how many releases have already shipped today (0-indexed) -- a real same-day
+// release slot: 00, 01, 02, ... Resets to 0 when `date` changes.
+//
+// entiny: the counter is derived from the release tags that already exist, because the
+// "Bump build variables" step needs secrets.INU_VARS_TOKEN, which a fork does not have -- and
+// continue-on-error hides that failure, so every same-day build got the same versionCode and
+// the in-app updater ignored it. INU_DAY_STATE is kept as a manual floor: it can only push the
+// counter forward, never back, so a stale variable cannot collide with a shipped tag.
+function shippedToday(): number {
+  let next = 0
+  try {
+    const prefix = `refs/tags/v${appVerName}-${date}`
+    const refs = execFileSync('git', ['ls-remote', '--tags', 'origin', `${prefix}*`], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    })
+    const re = new RegExp(`${prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\d)$`)
+    for (const line of refs.split('\n')) {
+      const m = re.exec(line.trim())
+      if (m) next = Math.max(next, Number(m[1]) + 1)
+    }
+  } catch (e) {
+    console.warn(`could not list release tags, falling back to INU_DAY_STATE: ${e}`)
+  }
+  return next
+}
+
 const dayState = process.env.INU_DAY_STATE ?? ''
 const [dayStateDate, dayStateCounterRaw] = dayState.split(':')
-const dailyCounter = dayStateDate === date ? Number(dayStateCounterRaw ?? '0') : 0
+const manualCounter = dayStateDate === date ? Number(dayStateCounterRaw ?? '0') : 0
+const dailyCounter = Math.max(shippedToday(), Number.isFinite(manualCounter) ? manualCounter : 0)
 if (!Number.isInteger(dailyCounter) || dailyCounter < 0) {
   throw new Error(`invalid INU_DAY_STATE: ${dayState}`)
 }
