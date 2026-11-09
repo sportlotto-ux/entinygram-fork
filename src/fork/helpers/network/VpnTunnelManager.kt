@@ -13,7 +13,8 @@ import org.telegram.tgnet.ConnectionsManager
 object VpnTunnelManager {
     private const val TAG = "InuVpn"
     private const val START_DELAY_MS = 3000L
-    private const val READY_SETTLE_MS = 4000L
+    private const val READY_SETTLE_MS = 1500L
+    private const val MAX_UNFINISHED_STARTS = 2
 
     const val SOCKS_HOST = "127.0.0.1"
 
@@ -33,10 +34,12 @@ object VpnTunnelManager {
 
     fun init() {
         if (!InuConfig.AMNEZIA_ENABLED.value) return
-        if (isStartPending()) {
-            Log.d(TAG, "previous engine start never finished, tunnel disabled")
-            clearPending()
+        val strikes = InuConfig.AMNEZIA_START_STRIKES.value
+        if (strikes >= MAX_UNFINISHED_STARTS) {
+            Log.d(TAG, "engine died $strikes starts in a row, tunnel disabled")
+            clearStrikes()
             InuConfig.AMNEZIA_ENABLED.value = false
+            releaseKeepAlive()
             return
         }
         Utilities.globalQueue.postRunnable({ if (InuConfig.AMNEZIA_ENABLED.value) start() }, START_DELAY_MS)
@@ -48,12 +51,12 @@ object VpnTunnelManager {
         val parsed = VpnConfigParser.parse(raw) ?: return
         InuConfig.AMNEZIA_PROTOCOL.value = parsed.protocol
         ensureKeepAlive()
-        markPending()
+        markUnfinishedStart()
         Log.d(TAG, "vpn start protocol=${parsed.protocol}")
         when (parsed.protocol) {
             VpnConfigParser.PROTOCOL_AWG -> AwgEngine.start(parsed.raw)
             VpnConfigParser.PROTOCOL_XRAY -> XrayEngine.start(parsed.raw)
-            else -> clearPending()
+            else -> clearStrikes()
         }
     }
 
@@ -61,7 +64,7 @@ object VpnTunnelManager {
         AwgEngine.stop()
         XrayEngine.stop()
         activePort = 0
-        clearPending()
+        clearStrikes()
         releaseKeepAlive()
     }
 
@@ -77,28 +80,27 @@ object VpnTunnelManager {
         InuConfig.AMNEZIA_SOCKS_PORT.value = port
         Log.d(TAG, "engine ready on $SOCKS_HOST:$port")
         Utilities.globalQueue.postRunnable { reapplyProxy() }
-        Utilities.globalQueue.postRunnable({ if (activePort == port) clearPending() }, READY_SETTLE_MS)
+        Utilities.globalQueue.postRunnable({ if (activePort == port) clearStrikes() }, READY_SETTLE_MS)
     }
 
     @JvmStatic
     fun onEngineFailed(reason: String?) {
         Log.d(TAG, "engine failed: $reason")
         activePort = 0
-        clearPending()
+        clearStrikes()
         if (InuConfig.AMNEZIA_ENABLED.value) {
             InuConfig.AMNEZIA_ENABLED.value = false
+            releaseKeepAlive()
             Utilities.globalQueue.postRunnable { reapplyProxy() }
         }
     }
 
-    private fun isStartPending(): Boolean = InuConfig.AMNEZIA_START_PENDING.value
-
-    private fun markPending() {
-        InuConfig.AMNEZIA_START_PENDING.value = true
+    private fun markUnfinishedStart() {
+        InuConfig.AMNEZIA_START_STRIKES.value = InuConfig.AMNEZIA_START_STRIKES.value + 1
     }
 
-    private fun clearPending() {
-        InuConfig.AMNEZIA_START_PENDING.value = false
+    private fun clearStrikes() {
+        InuConfig.AMNEZIA_START_STRIKES.value = 0
     }
 
     // entiny: the tunnel lives in this process, the stock keep-alive service keeps the process out of cached

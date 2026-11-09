@@ -499,7 +499,7 @@ object InuConfig {
     val AMNEZIA_SOCKS_PORT = IntItem("amnezia_socks_port", 0, exportable = false)
 
     @JvmField
-    val AMNEZIA_START_PENDING = BoolItem("amnezia_start_pending", false, exportable = false)
+    val AMNEZIA_START_STRIKES = IntItem("amnezia_start_strikes", 0, exportable = false)
 
     @JvmField
     val AMNEZIA_KEEPALIVE_SET = BoolItem("amnezia_keepalive_set", false, exportable = false)
