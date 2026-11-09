@@ -505,6 +505,9 @@ object InuConfig {
     val AMNEZIA_KEEPALIVE_SET = BoolItem("amnezia_keepalive_set", false, exportable = false)
 
     @JvmField
+    val AMNEZIA_PUSHCONN_SET = BoolItem("amnezia_pushconn_set", false, exportable = false)
+
+    @JvmField
     val LEAK_GUARD = BoolItem("leak_guard", false)
 
     @JvmField

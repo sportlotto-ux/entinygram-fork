@@ -84,6 +84,8 @@
     <string name="InuUnifiedPushInfo">Get notifications through a UnifiedPush distributor like ntfy instead of Google services. Works without Google Play.</string>
     <string name="InuBackgroundService">Background service</string>
     <string name="InuBackgroundServiceInfo">Keeps the app connected in the background so notifications arrive on time, even without Google services.</string>
+    <string name="InuBackgroundConnection">Background connection</string>
+    <string name="InuBackgroundConnectionInfo">Keeps an update connection open in the background instead of relying on Google services, so messages and calls arrive on time.</string>
     <string name="InuBackgroundServiceAlert">This keeps a permanent notification and an always-on connection. It increases battery and data usage. Some phones (Xiaomi, Huawei, Oppo and others) may still stop it unless you disable battery optimization for the app.</string>
     <string name="InuBackgroundServiceEnable">Enable</string>
     <string name="InuBackgroundServiceHideNotification">Hide service notification</string>

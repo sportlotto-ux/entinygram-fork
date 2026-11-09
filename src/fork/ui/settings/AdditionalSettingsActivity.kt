@@ -149,6 +149,14 @@ class AdditionalSettingsActivity : SettingsPageActivity(), NotificationCenter.No
                 InuConfig.FOREGROUND_PUSH_SERVICE.value,
             )
         )
+        items.add(
+            mkTwoLineCheckItem(
+                TOGGLE_BACKGROUND_CONNECTION,
+                R.string.InuBackgroundConnection,
+                R.string.InuBackgroundConnectionInfo,
+                NotificationsHelper.isBackgroundConnectionEnabled(),
+            )
+        )
         if (InuConfig.FOREGROUND_PUSH_SERVICE.value && android.os.Build.VERSION.SDK_INT >= 26) {
             items.add(UItem.asButton(BUTTON_BACKGROUND_SERVICE_CHANNEL, LocaleController.getString(R.string.InuBackgroundServiceHideNotification), LocaleController.getString(R.string.InuBackgroundServiceHideNotificationInfo)))
         }
@@ -364,6 +372,12 @@ class AdditionalSettingsActivity : SettingsPageActivity(), NotificationCenter.No
             TOGGLE_UNIFIED_PUSH -> toggleUnifiedPush()
 
             TOGGLE_BACKGROUND_SERVICE -> toggleBackgroundService(view)
+
+            TOGGLE_BACKGROUND_CONNECTION -> {
+                val enabled = !NotificationsHelper.isBackgroundConnectionEnabled()
+                NotificationsHelper.setBackgroundConnectionEnabled(enabled)
+                (view as? NotificationsCheckCell)?.isChecked = enabled
+            }
 
             BUTTON_BACKGROUND_SERVICE_CHANNEL -> openServiceChannelSettings()
 
@@ -686,6 +700,7 @@ class AdditionalSettingsActivity : SettingsPageActivity(), NotificationCenter.No
         private val BUTTON_DATACENTER_STATUS = InuUtils.generateId()
         private val TOGGLE_UNIFIED_PUSH = InuUtils.generateId()
         private val TOGGLE_BACKGROUND_SERVICE = InuUtils.generateId()
+        private val TOGGLE_BACKGROUND_CONNECTION = InuUtils.generateId()
         private val BUTTON_BACKGROUND_SERVICE_CHANNEL = InuUtils.generateId()
         private val BUTTON_UNIFIED_PUSH_DISTRIBUTOR = InuUtils.generateId()
         private val BUTTON_UNIFIED_PUSH_GATEWAY = InuUtils.generateId()
@@ -710,6 +725,7 @@ class AdditionalSettingsActivity : SettingsPageActivity(), NotificationCenter.No
                 SearchRegistry.Entry("additional-datacenter-status", R.string.InuDatacenterStatus, BUTTON_DATACENTER_STATUS),
                 SearchRegistry.Entry("additional-unified-push", R.string.InuUnifiedPush, TOGGLE_UNIFIED_PUSH),
                 SearchRegistry.Entry("additional-background-service", R.string.InuBackgroundService, TOGGLE_BACKGROUND_SERVICE),
+                SearchRegistry.Entry("additional-background-connection", R.string.InuBackgroundConnection, TOGGLE_BACKGROUND_CONNECTION),
                 SearchRegistry.Entry("additional-unified-push-gateway", R.string.InuUnifiedPushGateway, BUTTON_UNIFIED_PUSH_GATEWAY),
                 SearchRegistry.Entry("notif-channel-sync", R.string.InuNotifChannelSync, TOGGLE_NOTIF_CHANNEL_SYNC),
                 SearchRegistry.Entry("per-chat-notif-channels", R.string.InuPerChatNotifChannels, TOGGLE_PER_CHAT_NOTIF_CHANNELS),

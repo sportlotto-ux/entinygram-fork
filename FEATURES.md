@@ -203,6 +203,7 @@ our own layer on top of the inugram patchset: restricted Telegram features, priv
 - 📡 **export chat** as JSON or HTML with media, including your own voice and video messages
 - 📡 **UnifiedPush** notifications without Google Play - *ported from [Forkgram](https://github.com/forkgram/TelegramAndroid) & [Mercurygram](https://github.com/mercurygram/mercurygram)*
 - 📡 **background service**: optional always-on connection so notifications arrive on time, at the cost of battery - *inspired by [exteraGram](https://github.com/exteraSquad/exteraGram)*
+- 📡 **background connection**: keep an update connection open instead of relying on Google push, so messages and calls arrive in the background
 - 📡 **fix notifications dying everywhere**: muting one topic or system notification channel no longer mutes the whole chat list, no server-side mute either
 - 📡 **system channel mute**: optional — keep a channel muted only in system settings, without the app muting those chats too
 - 📡 **per-chat notification channels**: own system channel for every chat, so muting one channel or topic can't silence the rest

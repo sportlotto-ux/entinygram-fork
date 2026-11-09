@@ -43,6 +43,8 @@
     <string name="InuUnifiedPushInfo">Отримувати сповіщення через дистриб’ютор UnifiedPush, наприклад ntfy, замість сервісів Google. Працює без Google Play.</string>
     <string name="InuBackgroundService">Фонова служба</string>
     <string name="InuBackgroundServiceInfo">Тримає застосунок на зв’язку у фоні, щоб сповіщення приходили вчасно, навіть без сервісів Google.</string>
+    <string name="InuBackgroundConnection">Фонове з’єднання</string>
+    <string name="InuBackgroundConnectionInfo">Тримає з’єднання для сповіщень у фоні замість сервісів Google — повідомлення та дзвінки надходять вчасно.</string>
     <string name="InuBackgroundServiceAlert">Це постійне сповіщення та завжди активне з’єднання. Воно збільшує витрату заряду та трафіку. Деякі телефони (Xiaomi, Huawei, Oppo та інші) все одно можуть її зупиняти, якщо не вимкнути оптимізацію батареї для застосунку.</string>
     <string name="InuBackgroundServiceEnable">Увімкнути</string>
     <string name="InuBackgroundServiceHideNotification">Сховати сповіщення служби</string>

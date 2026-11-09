@@ -12,9 +12,11 @@ import desu.inugram.helpers.plugins.platform.PluginNotifications
 import desu.inugram.helpers.security.ParanoiaHelper
 import desu.inugram.helpers.security.PasscodeHelper
 import org.telegram.messenger.MessageObject
+import org.telegram.messenger.MessagesController
 import org.telegram.messenger.NotificationsController
 import org.telegram.messenger.R
 import org.telegram.messenger.UserConfig
+import org.telegram.tgnet.ConnectionsManager
 import java.util.concurrent.ConcurrentHashMap
 
 object NotificationsHelper {
@@ -30,6 +32,25 @@ object NotificationsHelper {
 
     @JvmStatic
     fun keepAliveForeground(): Boolean = InuConfig.UNIFIED_PUSH.value || InuConfig.FOREGROUND_PUSH_SERVICE.value
+
+    // entiny: stock toggle that keeps an mtproto connection for updates instead of relying on fcm
+    @JvmStatic
+    fun isBackgroundConnectionEnabled(): Boolean {
+        val prefs = MessagesController.getGlobalNotificationsSettings()
+        if (prefs.contains("pushConnection")) return prefs.getBoolean("pushConnection", true)
+        return MessagesController.getMainSettings(UserConfig.selectedAccount.coerceAtLeast(0))
+            .getBoolean("backgroundConnection", false)
+    }
+
+    @JvmStatic
+    fun setBackgroundConnectionEnabled(enabled: Boolean) {
+        MessagesController.getGlobalNotificationsSettings().edit().putBoolean("pushConnection", enabled).apply()
+        val account = UserConfig.selectedAccount
+        if (account > 0) {
+            MessagesController.getNotificationsSettings(account).edit().putBoolean("pushConnection", enabled).apply()
+        }
+        if (account >= 0) ConnectionsManager.getInstance(account).setPushConnectionEnabled(enabled)
+    }
 
     @JvmStatic
     fun smallIconRes(): Int = when (InuConfig.NOTIFICATION_ICON.value) {
