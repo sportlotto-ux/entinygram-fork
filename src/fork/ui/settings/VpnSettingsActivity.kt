@@ -9,6 +9,7 @@ import desu.inugram.InuConfig
 import desu.inugram.SearchRegistry
 import desu.inugram.helpers.InuUtils
 import desu.inugram.helpers.network.VpnConfigParser
+import desu.inugram.helpers.network.VpnHealthProbe
 import desu.inugram.helpers.network.VpnTunnelManager
 import org.telegram.messenger.AndroidUtilities
 import org.telegram.messenger.ApplicationLoader
@@ -68,7 +69,11 @@ class VpnSettingsActivity : SettingsPageActivity() {
                 VpnTunnelManager.setEnabled(enable)
                 (view as? NotificationsCheckCell)?.isChecked = enable
                 AndroidUtilities.runOnUIThread({ softRebuild() }, 1500L)
-                if (enable) checkEngineStarted()
+                if (enable) {
+                    // the probe decides the real state a few seconds later, rebuild once more
+                    AndroidUtilities.runOnUIThread({ softRebuild() }, 6000L)
+                    checkEngineStarted()
+                }
             }
 
             BTN_IMPORT -> launchImport()
@@ -187,7 +192,9 @@ class VpnSettingsActivity : SettingsPageActivity() {
             val raw = InuConfig.AMNEZIA_CONFIG.value.trim()
             if (raw.isEmpty()) return LocaleController.getString(R.string.InuVpnNotConfigured)
             val parsed = VpnConfigParser.parse(raw) ?: return LocaleController.getString(R.string.InuVpnNotConfigured)
-            return describe(parsed)
+            val base = describe(parsed).toString()
+            if (!InuConfig.AMNEZIA_ENABLED.value) return base
+            return "$base · ${LocaleController.getString(VpnHealthProbe.stateRes())}"
         }
 
         private fun describe(parsed: VpnConfigParser.Parsed): CharSequence {

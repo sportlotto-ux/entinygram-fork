@@ -2,6 +2,7 @@ package desu.inugram.helpers.chat
 
 import desu.inugram.helpers.archive.DeletedMessagesHelper
 import desu.inugram.helpers.archive.EditHistoryHelper
+import desu.inugram.helpers.network.VpnHealthProbe
 import desu.inugram.helpers.network.VpnTunnelManager
 import android.Manifest
 import android.content.ClipData
@@ -2734,7 +2735,14 @@ object ChatHelper {
         }
         val icons = ArrayList<Int>(2)
         if (GhostHelper.isGhostActive() && !InuConfig.GHOST_HIDE_APP_BAR_ICON.value) icons.add(R.drawable.inu_ghost_filled)
-        if (VpnTunnelManager.isActive()) icons.add(R.drawable.inu_tabler_shield_lock)
+        if (VpnTunnelManager.isActive()) icons.add(
+            when (VpnHealthProbe.state) {
+                VpnHealthProbe.STATE_UP -> R.drawable.inu_tabler_shield_check
+                VpnHealthProbe.STATE_WEAK -> R.drawable.inu_tabler_shield_exclamation
+                VpnHealthProbe.STATE_DOWN -> R.drawable.inu_tabler_shield_x
+                else -> R.drawable.inu_tabler_shield_lock
+            }
+        )
         if (icons.isEmpty()) return baseTitle
         val ssb = SpannableStringBuilder()
         for (i in icons.indices) {

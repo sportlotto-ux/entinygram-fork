@@ -14,7 +14,6 @@ import org.telegram.tgnet.ConnectionsManager
 object VpnTunnelManager {
     private const val TAG = "InuVpn"
     private const val START_DELAY_MS = 3000L
-    private const val READY_SETTLE_MS = 1500L
     private const val MAX_UNFINISHED_STARTS = 2
 
     const val SOCKS_HOST = "127.0.0.1"
@@ -64,6 +63,7 @@ object VpnTunnelManager {
     fun stop() {
         AwgEngine.stop()
         XrayEngine.stop()
+        VpnHealthProbe.stop()
         activePort = 0
         clearStrikes()
         releaseKeepAlive()
@@ -81,19 +81,49 @@ object VpnTunnelManager {
         InuConfig.AMNEZIA_SOCKS_PORT.value = port
         Log.d(TAG, "engine ready on $SOCKS_HOST:$port")
         Utilities.globalQueue.postRunnable { reapplyProxy() }
-        Utilities.globalQueue.postRunnable({ if (activePort == port) clearStrikes() }, READY_SETTLE_MS)
+        // "ready" only means the SOCKS listener is up, the strikes are cleared by a real probe
+        VpnHealthProbe.start(port, ::clearStrikes, ::onTunnelDown)
     }
 
     @JvmStatic
     fun onEngineFailed(reason: String?) {
         Log.d(TAG, "engine failed: $reason")
         activePort = 0
+        VpnHealthProbe.stop()
         clearStrikes()
         if (InuConfig.AMNEZIA_ENABLED.value) {
             InuConfig.AMNEZIA_ENABLED.value = false
             releaseKeepAlive()
             Utilities.globalQueue.postRunnable { reapplyProxy() }
         }
+    }
+
+    private fun onTunnelDown() {
+        if (!InuConfig.AMNEZIA_ENABLED.value) return
+        val strikes = InuConfig.AMNEZIA_START_STRIKES.value
+        Log.d(TAG, "no traffic through tunnel (${VpnHealthProbe.lastError}), unconfirmed starts=$strikes")
+        if (strikes < MAX_UNFINISHED_STARTS) {
+            restartAfterDown()
+            return
+        }
+        Log.d(TAG, "tunnel still down after $strikes restarts, disabling")
+        InuConfig.AMNEZIA_ENABLED.value = false
+        AwgEngine.stop()
+        XrayEngine.stop()
+        VpnHealthProbe.stop()
+        activePort = 0
+        releaseKeepAlive()
+        Utilities.globalQueue.postRunnable { reapplyProxy() }
+    }
+
+    // restart() clears the strikes on purpose (manual toggle, new config), this one does not
+    private fun restartAfterDown() {
+        AwgEngine.stop()
+        XrayEngine.stop()
+        VpnHealthProbe.stop()
+        activePort = 0
+        if (InuConfig.AMNEZIA_ENABLED.value) start()
+        Utilities.globalQueue.postRunnable { reapplyProxy() }
     }
 
     private fun markUnfinishedStart() {

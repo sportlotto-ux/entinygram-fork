@@ -1809,6 +1809,10 @@
     <string name="InuVpnConnection">Тунель</string>
     <string name="InuVpnTunnel">Увімкнути тунель</string>
     <string name="InuVpnTunnelInfo">Спрямовувати трафік через AmneziaWG або VLESS</string>
+    <string name="InuVpnStateConnecting">Підключення…</string>
+    <string name="InuVpnStateConnected">Підключено</string>
+    <string name="InuVpnStateWeak">Нестабільно</string>
+    <string name="InuVpnStateDown">Немає трафіку</string>
     <string name="InuVpnConfig">Конфігурація</string>
     <string name="InuVpnNotConfigured">Не налаштована</string>
     <string name="InuVpnImportFile">Імпорт із файлу</string>

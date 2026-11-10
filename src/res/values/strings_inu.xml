@@ -1891,6 +1891,10 @@
     <string name="InuVpnConnection">Tunnel</string>
     <string name="InuVpnTunnel">Enable tunnel</string>
     <string name="InuVpnTunnelInfo">Route traffic through AmneziaWG or VLESS</string>
+    <string name="InuVpnStateConnecting">Connecting…</string>
+    <string name="InuVpnStateConnected">Connected</string>
+    <string name="InuVpnStateWeak">Unstable</string>
+    <string name="InuVpnStateDown">No traffic</string>
     <string name="InuVpnConfig">Configuration</string>
     <string name="InuVpnNotConfigured">Not configured</string>
     <string name="InuVpnImportFile">Import from file</string>

@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/debug"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -301,6 +302,44 @@ func PingTunnel(host string) string {
 	elapsed := time.Since(start)
 	conn.Close()
 	return fmt.Sprintf("%d ms", elapsed.Milliseconds())
+}
+
+// entiny: peer handshake age and counters as JSON, "" when the engine is off
+func GetPeerStatus() string {
+	stateMu.Lock()
+	tun := activeTun
+	stateMu.Unlock()
+
+	if tun == nil || tun.Dev == nil {
+		return ""
+	}
+	raw, err := tun.Dev.IpcGet()
+	if err != nil {
+		return ""
+	}
+	var handshake int64
+	var rx, tx uint64
+	for _, line := range strings.Split(raw, "\n") {
+		key, value, ok := strings.Cut(line, "=")
+		if !ok {
+			continue
+		}
+		switch key {
+		case "last_handshake_time_sec":
+			if parsed, err := strconv.ParseInt(value, 10, 64); err == nil && parsed > handshake {
+				handshake = parsed
+			}
+		case "rx_bytes":
+			if parsed, err := strconv.ParseUint(value, 10, 64); err == nil {
+				rx += parsed
+			}
+		case "tx_bytes":
+			if parsed, err := strconv.ParseUint(value, 10, 64); err == nil {
+				tx += parsed
+			}
+		}
+	}
+	return fmt.Sprintf(`{"handshake":%d,"rx":%d,"tx":%d}`, handshake, rx, tx)
 }
 
 func Start(configStr string, cacheDir string) error {
