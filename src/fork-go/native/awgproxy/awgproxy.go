@@ -15,7 +15,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/amnezia-vpn/amneziawg-go/device"
+	"github.com/amnezia-vpn/amneziawg-go/v3/device"
 	wireproxy "github.com/bropines/awg-wireproxy"
 	"github.com/things-go/go-socks5"
 	_ "golang.org/x/mobile/bind"
