@@ -1,8 +1,18 @@
 import { execFileSync } from 'node:child_process'
 import fs from 'node:fs/promises'
 
-// main APK is the pluginless build, so its version props come from that worktree
-const worktree = 'worktree-pluginless'
+// main APK is the pluginless build, so its version props come from that worktree; a plugins-only
+// build has no pluginless worktree, and both worktrees carry the same props
+async function worktreeWithProps(): Promise<string> {
+  for (const dir of ['worktree-pluginless', 'worktree']) {
+    try {
+      await fs.access(`${dir}/gradle.properties`)
+      return dir
+    } catch {}
+  }
+  throw new Error('no worktree with gradle.properties found, run `bun run setup` first')
+}
+const worktree = await worktreeWithProps()
 const props = await fs.readFile(`${worktree}/gradle.properties`, 'utf8')
 const appVerName = /^APP_VERSION_NAME=(.+)$/m.exec(props)?.[1]
 if (!appVerName) throw new Error('failed to read APP_VERSION_NAME')

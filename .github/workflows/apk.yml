@@ -29,6 +29,11 @@ on:
         required: false
         default: false
         type: boolean
+      plugins_only:
+        description: 'Build only the plugins APK (skips the pluginless worktree and build).'
+        required: false
+        default: true
+        type: boolean
 
 concurrency:
   group: build-apk-${{ github.ref }}
@@ -102,10 +107,16 @@ jobs:
           save: true
 
       - name: Set up worktree
+        env:
+          PLUGINS_ONLY: ${{ inputs.plugins_only == true || inputs.plugins_only == 'true' }}
+          WITH_PLUGINS: ${{ inputs.plugins_only == true || inputs.plugins_only == 'true' || inputs.build_plugins == true || inputs.build_plugins == 'true' }}
         run: |
-          # Pluginless worktree always (worktree-pluginless/). Plugins worktree only when plugins are requested.
-          bun run setup -- --ci --pluginless
-          if [ '${{ inputs.build_plugins == true || inputs.build_plugins == 'true' }}' = 'true' ]; then
+          # Pluginless worktree only when the pluginless APK is actually built -- a plugins-only
+          # build skips it entirely, which is most of the saved build time.
+          if [ "$PLUGINS_ONLY" != 'true' ]; then
+            bun run setup -- --ci --pluginless
+          fi
+          if [ "$WITH_PLUGINS" = 'true' ]; then
             bun run setup -- --ci
           fi
 
@@ -160,7 +171,7 @@ jobs:
       # The plugin engine is Rust: rquickjs-sys runs bindgen, which needs libclang (the runner image ships only the
       # clang drivers), and cargo-ndk drives the Android cross build.
       - name: Install libclang
-        if: ${{ inputs.build_plugins == true || inputs.build_plugins == 'true' }}
+        if: ${{ inputs.plugins_only == true || inputs.plugins_only == 'true' || inputs.build_plugins == true || inputs.build_plugins == 'true' }}
         timeout-minutes: 10
         env:
           DEBIAN_FRONTEND: noninteractive
@@ -185,7 +196,7 @@ jobs:
           fi
 
       - name: Cache cargo
-        if: ${{ inputs.build_plugins == true || inputs.build_plugins == 'true' }}
+        if: ${{ inputs.plugins_only == true || inputs.plugins_only == 'true' || inputs.build_plugins == true || inputs.build_plugins == 'true' }}
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: |
@@ -198,7 +209,7 @@ jobs:
             ${{ runner.os }}-cargo-
 
       - name: Install Android Rust toolchain
-        if: ${{ inputs.build_plugins == true || inputs.build_plugins == 'true' }}
+        if: ${{ inputs.plugins_only == true || inputs.plugins_only == 'true' || inputs.build_plugins == true || inputs.build_plugins == 'true' }}
         run: |
           rustup target add aarch64-linux-android armv7-linux-androideabi
           cargo install cargo-ndk --version 4.1.2 --locked --force
@@ -233,6 +244,7 @@ jobs:
         run: ccache -z
 
       - name: Build arm64-v8a
+        if: ${{ inputs.plugins_only != true && inputs.plugins_only != 'true' }}
         working-directory: worktree-pluginless
         env:
           COMMIT_ID: ${{ github.sha }}
@@ -249,7 +261,7 @@ jobs:
           cp TMessagesProj_App/build/outputs/apk/release/app.apk "$GITHUB_WORKSPACE/out/${{ steps.info.outputs.apk-arm64 }}"
 
       - name: Build armeabi-v7a
-        if: ${{ inputs.build_arm7 == true || inputs.build_arm7 == 'true' }}
+        if: ${{ inputs.plugins_only != true && inputs.plugins_only != 'true' && (inputs.build_arm7 == true || inputs.build_arm7 == 'true') }}
         working-directory: worktree-pluginless
         env:
           COMMIT_ID: ${{ github.sha }}
@@ -264,7 +276,7 @@ jobs:
           cp TMessagesProj_App/build/outputs/apk/release/app.apk "$GITHUB_WORKSPACE/out/${{ steps.info.outputs.apk-arm7 }}"
 
       - name: Build arm64-v8a with plugins
-        if: ${{ inputs.build_plugins == true || inputs.build_plugins == 'true' }}
+        if: ${{ inputs.plugins_only == true || inputs.plugins_only == 'true' || inputs.build_plugins == true || inputs.build_plugins == 'true' }}
         working-directory: worktree
         env:
           COMMIT_ID: ${{ github.sha }}
@@ -279,7 +291,7 @@ jobs:
           cp TMessagesProj_App/build/outputs/apk/release/app.apk "$GITHUB_WORKSPACE/out/${{ steps.info.outputs.apk-plugins }}"
 
       - name: Build armeabi-v7a with plugins
-        if: ${{ (inputs.build_plugins == true || inputs.build_plugins == 'true') && (inputs.build_arm7 == true || inputs.build_arm7 == 'true') }}
+        if: ${{ (inputs.plugins_only == true || inputs.plugins_only == 'true' || inputs.build_plugins == true || inputs.build_plugins == 'true') && (inputs.build_arm7 == true || inputs.build_arm7 == 'true') }}
         working-directory: worktree
         env:
           COMMIT_ID: ${{ github.sha }}
@@ -303,20 +315,29 @@ jobs:
           LAST_UPLOADED_SHA: ${{ (inputs.prerelease == true || inputs.prerelease == 'true') && vars.LAST_BUILD_SHA || vars.LAST_RELEASE_SHA }}
         run: |
           mkdir -p out
-          apk='${{ steps.info.outputs.apk-arm64 }}'
           build_arm7='${{ inputs.build_arm7 == true || inputs.build_arm7 == 'true' }}'
-          if [ "$build_arm7" = 'true' ]; then
-            apk_files_json=$(jq -cn --arg a "$apk" --arg b '${{ steps.info.outputs.apk-arm7 }}' '[{file:$a},{file:$b}]')
-          else
-            apk_files_json=$(jq -cn --arg f "$apk" '[{file:$f}]')
-          fi
-
           plugins=''
           plugins_arm7=''
-          if [ '${{ inputs.build_plugins == true || inputs.build_plugins == 'true' }}' = 'true' ]; then
+          if [ '${{ inputs.plugins_only == true || inputs.plugins_only == 'true' }}' = 'true' ]; then
+            # plugins-only: no pluginless APK exists, so apkFiles stays empty and the plugins
+            # slot carries the only artifact (upload.ts labels and links it as "ARM64 + plugins")
+            apk_files_json='[]'
             plugins='${{ steps.info.outputs.apk-plugins }}'
             if [ "$build_arm7" = 'true' ]; then
               plugins_arm7='${{ steps.info.outputs.apk-arm7-plugins }}'
+            fi
+          else
+            apk='${{ steps.info.outputs.apk-arm64 }}'
+            if [ "$build_arm7" = 'true' ]; then
+              apk_files_json=$(jq -cn --arg a "$apk" --arg b '${{ steps.info.outputs.apk-arm7 }}' '[{file:$a},{file:$b}]')
+            else
+              apk_files_json=$(jq -cn --arg f "$apk" '[{file:$f}]')
+            fi
+            if [ '${{ inputs.build_plugins == true || inputs.build_plugins == 'true' }}' = 'true' ]; then
+              plugins='${{ steps.info.outputs.apk-plugins }}'
+              if [ "$build_arm7" = 'true' ]; then
+                plugins_arm7='${{ steps.info.outputs.apk-arm7-plugins }}'
+              fi
             fi
           fi
 
