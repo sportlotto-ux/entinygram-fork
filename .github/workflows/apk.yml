@@ -288,6 +288,8 @@ jobs:
           CCACHE_BASEDIR: ${{ github.workspace }}/worktree
         run: |
           ./gradlew --no-daemon :TMessagesProj_App:assembleRelease
+          # a plugins-only run has no pluginless step to create out/ first
+          mkdir -p "$GITHUB_WORKSPACE/out"
           cp TMessagesProj_App/build/outputs/apk/release/app.apk "$GITHUB_WORKSPACE/out/${{ steps.info.outputs.apk-plugins }}"
 
       - name: Build armeabi-v7a with plugins
@@ -303,6 +305,7 @@ jobs:
           CCACHE_BASEDIR: ${{ github.workspace }}/worktree
         run: |
           ./gradlew --no-daemon :TMessagesProj_App:assembleRelease
+          mkdir -p "$GITHUB_WORKSPACE/out"
           cp TMessagesProj_App/build/outputs/apk/release/app.apk "$GITHUB_WORKSPACE/out/${{ steps.info.outputs.apk-arm7-plugins }}"
 
       - name: Show ccache stats
