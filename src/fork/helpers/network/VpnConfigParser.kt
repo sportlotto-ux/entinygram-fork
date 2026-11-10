@@ -102,23 +102,28 @@ object VpnConfigParser {
         for (i in 0 until containers.length()) {
             val container = containers.optJSONObject(i) ?: continue
             val name = container.optString("container")
+            val last = lastConfig(container) ?: continue
             val parsed = when {
-                name.contains("awg") || name.contains("wireguard") -> {
-                    val last = container.optJSONObject("awg")?.optString("last_config")
-                        ?: container.optJSONObject("wireguard")?.optString("last_config")
+                name.contains("awg") || name.contains("wireguard") ->
                     decodeText(last)?.let { parseAwg(it) }
-                }
-                name.contains("xray") || name.contains("vless") -> {
-                    decodeText(container.optJSONObject("xray")?.optString("last_config"))
-                        ?.let { xrayToVless(it) }
-                        ?.let { parseVless(it) }
-                }
+                name.contains("xray") || name.contains("vless") ->
+                    decodeText(last)?.let { xrayToVless(it) }?.let { parseVless(it) }
                 else -> null
             }
             if (parsed != null) found[name] = parsed
         }
         if (found.isEmpty()) return null
         return found[root.optString("defaultContainer")] ?: found.values.first()
+    }
+
+    private fun lastConfig(container: JSONObject): String? {
+        val keys = container.keys()
+        while (keys.hasNext()) {
+            val child = container.optJSONObject(keys.next()) ?: continue
+            val value = child.optString("last_config")
+            if (value.isNotEmpty()) return value
+        }
+        return null
     }
 
     private fun decodeText(value: String?): String? {
