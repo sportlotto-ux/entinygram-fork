@@ -226,5 +226,6 @@
   "unread-badge-on-back-button": "chat",
   "user-info-saver": "privacy",
   "wide-channel-posts": "ui",
-  "emoji-view-observer-leak": "chat"
+  "emoji-view-observer-leak": "chat",
+  "call-translate": "calls"
 }

@@ -36,6 +36,7 @@ class TosSettingsActivity : SettingsPageActivity() {
         items.add(mkSubPageButton(CAT_STALKER_PACK, R.drawable.inu_tabler_radar, LocaleController.getString(R.string.InuStalkerPack)))
         items.add(mkSubPageButton(CAT_REGEX_FILTER, R.drawable.inu_tabler_filter, LocaleController.getString(R.string.InuRegexFilter)))
         items.add(mkSubPageButton(CAT_DEVICE_SPOOF, R.drawable.phosphor_device_mobile, LocaleController.getString(R.string.InuDeviceSpoof)))
+        items.add(mkSubPageButton(CAT_CALL_TRANSLATE, R.drawable.inu_tabler_language, LocaleController.getString(R.string.InuCallTranslate)))
         items.add(UItem.asShadow(null))
 
         items.add(UItem.asHeader(LocaleController.getString(R.string.InuPremiumUnlock)))
@@ -168,6 +169,7 @@ class TosSettingsActivity : SettingsPageActivity() {
             CAT_STALKER_PACK -> presentFragment(StalkerPackSettingsActivity())
             CAT_REGEX_FILTER -> presentFragment(RegexFilterSettingsActivity())
             CAT_DEVICE_SPOOF -> presentFragment(desu.inugram.ui.spoof.DeviceSpoofSettingsActivity())
+            CAT_CALL_TRANSLATE -> presentFragment(CallTranslateSettingsActivity())
             BUTTON_LOCAL_NAMES -> presentFragment(LocalNamesSettingsActivity())
 
             TOGGLE_LOCAL_PREMIUM -> {
@@ -234,6 +236,7 @@ class TosSettingsActivity : SettingsPageActivity() {
         private val CAT_STALKER_PACK = InuUtils.generateId()
         private val CAT_REGEX_FILTER = InuUtils.generateId()
         private val CAT_DEVICE_SPOOF = InuUtils.generateId()
+        private val CAT_CALL_TRANSLATE = InuUtils.generateId()
 
         private val TOGGLE_LOCAL_PREMIUM = InuUtils.generateId()
         private val TOGGLE_LOCAL_CUSTOM_EMOJI = InuUtils.generateId()

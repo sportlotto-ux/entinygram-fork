@@ -2121,4 +2121,16 @@
     <string name="InuPluginsPluginlessBuild">هذا الإصدار لا يدعم الإضافات\n\nانتقل إلى «حول» للتبديل إلى الإصدار الكامل</string>
     <string name="InuSendAsSticker">إرسال كملصق</string>
     <string name="InuStickerPackZipFailed">تعذّر تنزيل الحزمة</string>
+
+    <!-- Call translation -->
+    <string name="InuCallTranslate">ترجمة المكالمات</string>
+    <string name="InuCallTranslateInfo">يعرض ترجمة فورية نصية أثناء المكالمات. يمر الصوت عبر خادمك الوكيل بمفتاح Gemini، ولا يتم تخزين شيء.</string>
+    <string name="InuCallTranslateServer">الخادم</string>
+    <string name="InuCallTranslateEndpoint">عنوان الوسيط</string>
+    <string name="InuCallTranslateToken">رمز الجهاز</string>
+    <string name="InuCallTranslateLanguages">اللغات</string>
+    <string name="InuCallTranslateLangIn">لغة الطرف الآخر</string>
+    <string name="InuCallTranslateLangOut">لغتي</string>
+    <string name="InuCallTranslateNotSet">غير محدد</string>
+    <string name="InuCallTranslateHint">تُرسل لغات الترجمة إلى الخادم مع كل مكالمة.</string>
 </resources>

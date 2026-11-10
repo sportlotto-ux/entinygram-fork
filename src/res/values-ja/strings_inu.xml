@@ -2084,4 +2084,16 @@
     <string name="InuMaterial3SettingsInfo">スイッチ、スライダー、セクション、アバター、チャットリストのカードなど。</string>
     <string name="InuSendAsSticker">ステッカーとして送信</string>
     <string name="InuStickerPackZipFailed">パックのダウンロードに失敗しました</string>
+
+    <!-- Call translation -->
+    <string name="InuCallTranslate">通話の翻訳</string>
+    <string name="InuCallTranslateInfo">通話中に翻訳字幕をリアルタイムで表示します。音声は Gemini キーを使う自分のプロキシサーバーを通り、何も保存されません。</string>
+    <string name="InuCallTranslateServer">サーバー</string>
+    <string name="InuCallTranslateEndpoint">プロキシのアドレス</string>
+    <string name="InuCallTranslateToken">端末トークン</string>
+    <string name="InuCallTranslateLanguages">言語</string>
+    <string name="InuCallTranslateLangIn">相手の言語</string>
+    <string name="InuCallTranslateLangOut">自分の言語</string>
+    <string name="InuCallTranslateNotSet">未設定</string>
+    <string name="InuCallTranslateHint">字幕の言語は通話ごとにサーバーへ送信されます。</string>
 </resources>

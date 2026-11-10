@@ -2106,4 +2106,16 @@
     <string name="InuPluginsPluginlessBuild">این نسخه از افزونه‌ها پشتیبانی نمی‌کند\n\nبرای رفتن به نسخه کامل به بخش درباره بروید</string>
     <string name="InuSendAsSticker">ارسال به‌عنوان استیکر</string>
     <string name="InuStickerPackZipFailed">دانلود بسته ناموفق بود</string>
+
+    <!-- Call translation -->
+    <string name="InuCallTranslate">ترجمه تماس</string>
+    <string name="InuCallTranslateInfo">زیرنویس ترجمه‌شده زنده را در طول تماس نشان می‌دهد. صدا از سرور واسط خودتان با کلید Gemini عبور می‌کند و چیزی ذخیره نمی‌شود.</string>
+    <string name="InuCallTranslateServer">سرور</string>
+    <string name="InuCallTranslateEndpoint">نشانی واسط</string>
+    <string name="InuCallTranslateToken">توکن دستگاه</string>
+    <string name="InuCallTranslateLanguages">زبان‌ها</string>
+    <string name="InuCallTranslateLangIn">زبان ورودی</string>
+    <string name="InuCallTranslateLangOut">زبان من</string>
+    <string name="InuCallTranslateNotSet">تنظیم نشده</string>
+    <string name="InuCallTranslateHint">زبان‌های زیرنویس با هر تماس به سرور فرستاده می‌شوند.</string>
 </resources>

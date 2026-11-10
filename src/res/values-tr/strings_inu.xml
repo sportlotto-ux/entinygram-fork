@@ -2087,4 +2087,16 @@
     <string name="InuMaterial3SettingsInfo">Anahtarlar, kaydırıcılar, bölümler, avatarlar, sohbet listesi kartları ve daha fazlası.</string>
     <string name="InuSendAsSticker">Çıkartma olarak gönder</string>
     <string name="InuStickerPackZipFailed">Paket indirilemedi</string>
+
+    <!-- Call translation -->
+    <string name="InuCallTranslate">Arama çevirisi</string>
+    <string name="InuCallTranslateInfo">Aramalar sırasında canlı çevrilmiş altyazılar gösterir. Ses, Gemini anahtarı olan kendi proxy sunucunuzdan geçer, hiçbir şey saklanmaz.</string>
+    <string name="InuCallTranslateServer">Sunucu</string>
+    <string name="InuCallTranslateEndpoint">Proxy adresi</string>
+    <string name="InuCallTranslateToken">Cihaz belirteci</string>
+    <string name="InuCallTranslateLanguages">Diller</string>
+    <string name="InuCallTranslateLangIn">Gelen dil</string>
+    <string name="InuCallTranslateLangOut">Benim dilim</string>
+    <string name="InuCallTranslateNotSet">ayarlanmadı</string>
+    <string name="InuCallTranslateHint">Altyazı dilleri her aramada sunucuya gönderilir.</string>
 </resources>

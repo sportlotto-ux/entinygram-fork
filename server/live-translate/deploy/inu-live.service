@@ -1,0 +1,32 @@
+[Unit]
+Description=inu-live — Gemini Live call translation proxy
+After=network-online.target docker.service
+Wants=network-online.target
+# the tunnel address lives on the amnezia bridge, which appears with its container
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=inu-live
+Group=inu-live
+WorkingDirectory=/opt/inu-live
+Environment=INU_HOST=172.29.172.1
+Environment=INU_PORT=8000
+Environment=INU_TOKENS=/etc/inu-live/tokens.json
+Environment=INU_GEMINI_KEY_FILE=/etc/inu-live/gemini.key
+Environment=INU_MODEL=gemini-3.5-live-translate-preview
+Environment=INU_TARGET_IN=ru
+Environment=INU_TARGET_OUT=en
+Environment=PYTHONDONTWRITEBYTECODE=1
+EnvironmentFile=-/etc/inu-live/env
+ExecStartPre=/bin/sh -c 'for i in $(seq 60); do ip -4 addr show amn0 2>/dev/null | grep -q 172.29.172.1 && exit 0; sleep 1; done; exit 1'
+ExecStart=/opt/inu-live/.venv/bin/uvicorn app:app --host ${INU_HOST} --port ${INU_PORT} --log-level info
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+
+[Install]
+WantedBy=multi-user.target

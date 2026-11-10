@@ -31,3 +31,7 @@ src/core/src/main/resources/tl_tables.txt
 src/native/target
 out
 plugins/*/dist
+
+# python
+__pycache__/
+*.pyc

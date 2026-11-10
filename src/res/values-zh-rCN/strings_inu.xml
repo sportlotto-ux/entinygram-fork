@@ -2084,4 +2084,16 @@
     <string name="InuMaterial3SettingsInfo">开关、滑块、分区、头像、聊天列表卡片等。</string>
     <string name="InuSendAsSticker">作为贴纸发送</string>
     <string name="InuStickerPackZipFailed">下载贴纸包失败</string>
+
+    <!-- Call translation -->
+    <string name="InuCallTranslate">通话翻译</string>
+    <string name="InuCallTranslateInfo">通话时显示实时翻译字幕。音频经过你自己的、带 Gemini 密钥的代理服务器，不会被保存。</string>
+    <string name="InuCallTranslateServer">服务器</string>
+    <string name="InuCallTranslateEndpoint">代理地址</string>
+    <string name="InuCallTranslateToken">设备令牌</string>
+    <string name="InuCallTranslateLanguages">语言</string>
+    <string name="InuCallTranslateLangIn">对方语言</string>
+    <string name="InuCallTranslateLangOut">我的语言</string>
+    <string name="InuCallTranslateNotSet">未设置</string>
+    <string name="InuCallTranslateHint">字幕语言会随每次通话发送到服务器。</string>
 </resources>

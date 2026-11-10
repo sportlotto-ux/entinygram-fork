@@ -14,6 +14,7 @@ import desu.inugram.ui.settings.AppearanceSettingsActivity
 import desu.inugram.ui.settings.BackupSettingsActivity
 import desu.inugram.ui.settings.BehaviorSettingsActivity
 import desu.inugram.ui.settings.CacheManagementSettingsActivity
+import desu.inugram.ui.settings.CallTranslateSettingsActivity
 import desu.inugram.ui.settings.CameraSoundSettingsActivity
 import desu.inugram.ui.settings.CategoryChatsSettingsActivity
 import desu.inugram.ui.settings.ChatHeaderSettingsActivity
@@ -97,6 +98,7 @@ object SearchRegistry {
             WeatherLocationActivity.PAGE,
             AntiDeletionSettingsActivity.PAGE,
             StalkerPackSettingsActivity.PAGE,
+            CallTranslateSettingsActivity.PAGE,
             RegexFilterSettingsActivity.PAGE,
             TranslatorSettingsActivity.PAGE,
             PrivacySecurityActivity.PAGE,

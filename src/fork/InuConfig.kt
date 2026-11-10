@@ -1176,6 +1176,21 @@ val MEMORY_TRIM = BoolItem("memory_trim", true)
     val FORCE_RELAY_CALLS = BoolItem("force_relay_calls", false)
 
     @JvmField
+    val CALL_TRANSLATE = BoolItem("call_translate", false)
+
+    @JvmField
+    val CALL_TRANSLATE_URL = StringItem("call_translate_url", "ws://172.29.172.1:8000/live", exportable = false)
+
+    @JvmField
+    val CALL_TRANSLATE_TOKEN = StringItem("call_translate_token", "", exportable = false)
+
+    @JvmField
+    val CALL_TRANSLATE_LANG_IN = StringItem("call_translate_lang_in", "ru")
+
+    @JvmField
+    val CALL_TRANSLATE_LANG_OUT = StringItem("call_translate_lang_out", "en")
+
+    @JvmField
     val PRESENCE_LOGGER_NOTIFY = BoolItem("presence_logger_notify", false)
 
     class PresenceLogsTtlItem : IntItem("presence_logs_ttl", NEVER) {

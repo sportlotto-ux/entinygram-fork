@@ -2137,4 +2137,16 @@ Mientras esté activado:</string>
     <string name="InuBookmarksEmpty">No hay marcadores</string>
     <string name="InuBookmarksClearAll">Borrar todos los marcadores</string>
     <string name="InuBookmarksSummary">Mensajes que guardaste, agrupados por chat</string>
+
+    <!-- Call translation -->
+    <string name="InuCallTranslate">Traducción de llamadas</string>
+    <string name="InuCallTranslateInfo">Muestra subtítulos traducidos en vivo durante las llamadas. El audio pasa por tu propio servidor proxy con la clave de Gemini, no se guarda nada.</string>
+    <string name="InuCallTranslateServer">Servidor</string>
+    <string name="InuCallTranslateEndpoint">Dirección del proxy</string>
+    <string name="InuCallTranslateToken">Token del dispositivo</string>
+    <string name="InuCallTranslateLanguages">Idiomas</string>
+    <string name="InuCallTranslateLangIn">Idioma entrante</string>
+    <string name="InuCallTranslateLangOut">Mi idioma</string>
+    <string name="InuCallTranslateNotSet">sin definir</string>
+    <string name="InuCallTranslateHint">Los idiomas de los subtítulos se envían al servidor con cada llamada.</string>
 </resources>

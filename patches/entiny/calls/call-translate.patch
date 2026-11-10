@@ -1,0 +1,312 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: sportlotto-ux <sportlotto-ux@users.noreply.github.com>
+Date: Tue, 10 Nov 2026 16:49:08 +0500
+Subject: [+] gemini live call translate
+
+---
+ TMessagesProj/jni/voip/CMakeLists.txt         |   1 +
+ TMessagesProj/jni/voip/inu/inu_audio_tap.cc   | 191 ++++++++++++++++++
+ TMessagesProj/jni/voip/inu/inu_audio_tap.h    |   8 +
+ .../voip/webrtc/audio/audio_transport_impl.cc |   2 +
+ .../audio_device/audio_device_buffer.cc       |   2 +
+ .../telegram/messenger/voip/VoIPService.java  |   2 +
+ .../java/org/telegram/ui/VoIPFragment.java    |   1 +
+ 7 files changed, 207 insertions(+)
+ create mode 100644 TMessagesProj/jni/voip/inu/inu_audio_tap.cc
+ create mode 100644 TMessagesProj/jni/voip/inu/inu_audio_tap.h
+
+diff --git a/TMessagesProj/jni/voip/CMakeLists.txt b/TMessagesProj/jni/voip/CMakeLists.txt
+index 0000000..0000000 100644
+--- a/TMessagesProj/jni/voip/CMakeLists.txt
++++ b/TMessagesProj/jni/voip/CMakeLists.txt
+@@ -674,6 +674,7 @@ add_library(tgcalls STATIC
+         voip/webrtc/modules/pacing/task_queue_paced_sender.cc
+         voip/webrtc/modules/pacing/pacing_controller.cc
+         voip/webrtc/modules/audio_device/audio_device_buffer.cc
++        voip/inu/inu_audio_tap.cc
+         voip/webrtc/modules/audio_device/audio_device_data_observer.cc
+         voip/webrtc/modules/audio_device/audio_device_generic.cc
+         voip/webrtc/modules/audio_device/audio_device_impl.cc
+diff --git a/TMessagesProj/jni/voip/inu/inu_audio_tap.cc b/TMessagesProj/jni/voip/inu/inu_audio_tap.cc
+new file mode 100644
+index 0000000..0000000
+--- /dev/null
++++ b/TMessagesProj/jni/voip/inu/inu_audio_tap.cc
+@@ -0,0 +1,191 @@
++#include "inu/inu_audio_tap.h"
++
++#include <atomic>
++#include <cstring>
++
++#include "opus.h"
++
++#ifdef __ANDROID__
++#include <android/log.h>
++#include <jni.h>
++#endif
++
++namespace {
++
++constexpr int kSlots = 64;
++constexpr int kMaxPacket = 512;
++constexpr int kMaxPending = 4096;
++constexpr int kFrameMs = 20;
++constexpr int kBitrate = 32000;
++
++struct Slot {
++  uint16_t len;
++  uint8_t data[kMaxPacket];
++};
++
++struct Ring {
++  Slot slots[kSlots];
++  std::atomic<uint32_t> head{0};
++  std::atomic<uint32_t> tail{0};
++
++  void reset() {
++    tail.store(head.load(std::memory_order_acquire), std::memory_order_release);
++  }
++
++  bool push(const uint8_t* src, int len) {
++    if (len <= 0 || len > kMaxPacket) return false;
++    uint32_t h = head.load(std::memory_order_relaxed);
++    if (h - tail.load(std::memory_order_acquire) >= kSlots) return false;
++    Slot& slot = slots[h & (kSlots - 1)];
++    slot.len = static_cast<uint16_t>(len);
++    memcpy(slot.data, src, static_cast<size_t>(len));
++    head.store(h + 1, std::memory_order_release);
++    return true;
++  }
++
++  int pop(uint8_t* dst, int cap) {
++    uint32_t t = tail.load(std::memory_order_relaxed);
++    if (t == head.load(std::memory_order_acquire)) return 0;
++    Slot& slot = slots[t & (kSlots - 1)];
++    int len = slot.len < cap ? slot.len : cap;
++    memcpy(dst, slot.data, static_cast<size_t>(len));
++    tail.store(t + 1, std::memory_order_release);
++    return len;
++  }
++};
++
++struct Tap {
++  OpusEncoder* encoder = nullptr;
++  int rate = 0;
++  int channels = 0;
++  int16_t pending[kMaxPending];
++  size_t pending_len = 0;
++  Ring ring;
++  std::atomic<int> dropped{0};
++};
++
++Tap g_record;
++Tap g_playout;
++std::atomic<bool> g_enabled{false};
++
++bool openEncoder(Tap& tap, int rate, int channels) {
++  if (tap.encoder && tap.rate == rate && tap.channels == channels) return true;
++  if (tap.encoder) {
++    opus_encoder_destroy(tap.encoder);
++    tap.encoder = nullptr;
++  }
++  if (rate != 8000 && rate != 12000 && rate != 16000 && rate != 24000 &&
++      rate != 48000) {
++#ifdef __ANDROID__
++    static std::atomic<bool> warned{false};
++    if (!warned.exchange(true)) {
++      __android_log_print(ANDROID_LOG_WARN, "inu_tap",
++                          "unsupported capture rate %d", rate);
++    }
++#endif
++    return false;
++  }
++  int error = 0;
++  OpusEncoder* encoder = opus_encoder_create(rate, 1, OPUS_APPLICATION_VOIP, &error);
++  if (error != OPUS_OK || !encoder) return false;
++  opus_encoder_ctl(encoder, OPUS_SET_BITRATE(kBitrate));
++  opus_encoder_ctl(encoder, OPUS_SET_COMPLEXITY(3));
++  opus_encoder_ctl(encoder, OPUS_SET_SIGNAL(OPUS_SIGNAL_VOICE));
++  opus_encoder_ctl(encoder, OPUS_SET_INBAND_FEC(1));
++  opus_encoder_ctl(encoder, OPUS_SET_PACKET_LOSS_PERC(10));
++  tap.encoder = encoder;
++  tap.rate = rate;
++  tap.channels = channels;
++  tap.pending_len = 0;
++  return true;
++}
++
++void feed(Tap& tap, const int16_t* data, size_t frames, int channels, int rate) {
++  if (!data || !frames || channels < 1 || rate <= 0) return;
++  if (!openEncoder(tap, rate, channels)) return;
++  const size_t frame = static_cast<size_t>(rate / 1000 * kFrameMs);
++  size_t done = 0;
++  while (done < frames) {
++    size_t room = kMaxPending - tap.pending_len;
++    if (!room) {
++      tap.pending_len = 0;
++      room = kMaxPending;
++    }
++    size_t count = frames - done < room ? frames - done : room;
++    if (channels == 1) {
++      memcpy(tap.pending + tap.pending_len, data + done, count * sizeof(int16_t));
++    } else {
++      for (size_t i = 0; i < count; i++) {
++        int32_t sum = 0;
++        for (int c = 0; c < channels; c++) {
++          sum += data[(done + i) * static_cast<size_t>(channels) + static_cast<size_t>(c)];
++        }
++        tap.pending[tap.pending_len + i] = static_cast<int16_t>(sum / channels);
++      }
++    }
++    tap.pending_len += count;
++    done += count;
++    while (tap.pending_len >= frame) {
++      uint8_t packet[kMaxPacket];
++      int len = opus_encode(tap.encoder, tap.pending, static_cast<int>(frame),
++                            packet, kMaxPacket);
++      if (len > 0 && !tap.ring.push(packet, len)) tap.dropped++;
++      memmove(tap.pending, tap.pending + frame,
++              (tap.pending_len - frame) * sizeof(int16_t));
++      tap.pending_len -= frame;
++    }
++  }
++}
++
++}  // namespace
++
++void inu_tap_record(const int16_t* data, size_t frames, int channels, int rate) {
++  if (!g_enabled.load(std::memory_order_acquire)) return;
++  feed(g_record, data, frames, channels, rate);
++}
++
++void inu_tap_playout(const int16_t* data, size_t frames, int channels, int rate) {
++  if (!g_enabled.load(std::memory_order_acquire)) return;
++  feed(g_playout, data, frames, channels, rate);
++}
++
++#ifdef __ANDROID__
++extern "C" {
++
++JNIEXPORT void JNICALL
++Java_desu_inugram_helpers_calls_InuCallTap_nativeStart(JNIEnv*, jobject) {
++  g_record.ring.reset();
++  g_playout.ring.reset();
++  g_record.pending_len = 0;
++  g_playout.pending_len = 0;
++  g_enabled.store(true, std::memory_order_release);
++}
++
++JNIEXPORT void JNICALL
++Java_desu_inugram_helpers_calls_InuCallTap_nativeStop(JNIEnv*, jobject) {
++  g_enabled.store(false, std::memory_order_release);
++  g_record.ring.reset();
++  g_playout.ring.reset();
++}
++
++JNIEXPORT jint JNICALL
++Java_desu_inugram_helpers_calls_InuCallTap_nativeRead(JNIEnv* env, jobject, jint dir,
++                                                      jbyteArray out) {
++  Tap& tap = dir == 0 ? g_playout : g_record;
++  jsize cap = env->GetArrayLength(out);
++  if (cap <= 0) return 0;
++  uint8_t packet[kMaxPacket];
++  int len = tap.ring.pop(packet, cap > kMaxPacket ? kMaxPacket : cap);
++  if (len > 0) {
++    env->SetByteArrayRegion(out, 0, len, reinterpret_cast<const jbyte*>(packet));
++  }
++  return len;
++}
++
++JNIEXPORT jint JNICALL
++Java_desu_inugram_helpers_calls_InuCallTap_nativeDropped(JNIEnv*, jobject, jint dir) {
++  return dir == 0 ? g_playout.dropped.load() : g_record.dropped.load();
++}
++
++}  // extern "C"
++#endif
+diff --git a/TMessagesProj/jni/voip/inu/inu_audio_tap.h b/TMessagesProj/jni/voip/inu/inu_audio_tap.h
+new file mode 100644
+index 0000000..0000000
+--- /dev/null
++++ b/TMessagesProj/jni/voip/inu/inu_audio_tap.h
+@@ -0,0 +1,8 @@
++#pragma once
++
++#include <cstddef>
++#include <cstdint>
++
++// entiny: call audio taps for live translation, called from webrtc audio threads
++void inu_tap_record(const int16_t* data, size_t frames, int channels, int rate);
++void inu_tap_playout(const int16_t* data, size_t frames, int channels, int rate);
+diff --git a/TMessagesProj/jni/voip/webrtc/audio/audio_transport_impl.cc b/TMessagesProj/jni/voip/webrtc/audio/audio_transport_impl.cc
+index 0000000..0000000 100644
+--- a/TMessagesProj/jni/voip/webrtc/audio/audio_transport_impl.cc
++++ b/TMessagesProj/jni/voip/webrtc/audio/audio_transport_impl.cc
+@@ -15,6 +15,7 @@
+ #include <utility>
+ 
+ #include "audio/remix_resample.h"
++#include "inu/inu_audio_tap.h"
+ #include "audio/utility/audio_frame_operations.h"
+ #include "call/audio_sender.h"
+ #include "modules/async_audio_processing/async_audio_processing.h"
+@@ -185,6 +186,7 @@ void AudioTransportImpl::SendProcessedData(
+     std::unique_ptr<AudioFrame> audio_frame) {
+   TRACE_EVENT0("webrtc", "AudioTransportImpl::SendProcessedData");
+   RTC_DCHECK_GT(audio_frame->samples_per_channel_, 0);
++  inu_tap_record(audio_frame->data(), audio_frame->samples_per_channel(), audio_frame->num_channels(), audio_frame->sample_rate_hz_);
+   MutexLock lock(&capture_lock_);
+   if (audio_senders_.empty())
+     return;
+diff --git a/TMessagesProj/jni/voip/webrtc/modules/audio_device/audio_device_buffer.cc b/TMessagesProj/jni/voip/webrtc/modules/audio_device/audio_device_buffer.cc
+index 0000000..0000000 100644
+--- a/TMessagesProj/jni/voip/webrtc/modules/audio_device/audio_device_buffer.cc
++++ b/TMessagesProj/jni/voip/webrtc/modules/audio_device/audio_device_buffer.cc
+@@ -17,6 +17,7 @@
+ #include <cstdint>
+ 
+ #include "common_audio/signal_processing/include/signal_processing_library.h"
++#include "inu/inu_audio_tap.h"
+ #include "rtc_base/checks.h"
+ #include "rtc_base/logging.h"
+ #include "rtc_base/time_utils.h"
+@@ -358,6 +359,7 @@ int32_t AudioDeviceBuffer::RequestPlayoutData(size_t samples_per_channel) {
+   // Update playout stats which is used as base for periodic logging of the
+   // audio output state.
+   UpdatePlayStats(max_abs, num_samples_out / play_channels_);
++  if (play_channels_) inu_tap_playout(play_buffer_.data(), num_samples_out / play_channels_, play_channels_, play_sample_rate_);
+   return static_cast<int32_t>(num_samples_out / play_channels_);
+ }
+ 
+diff --git a/TMessagesProj/src/main/java/org/telegram/messenger/voip/VoIPService.java b/TMessagesProj/src/main/java/org/telegram/messenger/voip/VoIPService.java
+index 0000000..0000000 100755
+--- a/TMessagesProj/src/main/java/org/telegram/messenger/voip/VoIPService.java
++++ b/TMessagesProj/src/main/java/org/telegram/messenger/voip/VoIPService.java
+@@ -4144,6 +4144,7 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
+ 
+ 	@Override
+ 	public void onDestroy() {
++		desu.inugram.helpers.calls.CallTranslateHelper.onCallEnded();
+ 		if (BuildVars.LOGS_ENABLED) {
+ 			FileLog.d("=============== VoIPService STOPPING ===============");
+ 		}
+@@ -5464,6 +5465,7 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
+ 			if (convertingVoip != null) {
+ 				return;
+ 			}
++			desu.inugram.helpers.calls.CallTranslateHelper.onConnectionStateChanged(newState, groupCall == null);
+ 			if (newState == STATE_ESTABLISHED) {
+ 				if (callStartTime == 0) {
+ 					callStartTime = SystemClock.elapsedRealtime();
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/VoIPFragment.java b/TMessagesProj/src/main/java/org/telegram/ui/VoIPFragment.java
+index 0000000..0000000 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/VoIPFragment.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/VoIPFragment.java
+@@ -414,6 +414,7 @@ public class VoIPFragment implements
+         wm.addView(windowView, layoutParams);
+         View view = fragment.createView(activity);
+         windowView.addView(view);
++        desu.inugram.helpers.calls.CallTranslateHelper.attachOverlay(windowView);
+ 
+         if (transitionFromPip) {
+             fragment.enterTransitionProgress = 0f;

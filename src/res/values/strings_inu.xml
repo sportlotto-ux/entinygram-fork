@@ -2207,4 +2207,16 @@
     <string name="InuAlwaysSendVideosHdInfo">Picks the highest compression quality when sending videos, no matter the data saver setting.</string>
     <string name="InuFontSyntheticBold">Thicken bold text</string>
     <string name="InuFontSyntheticBoldInfo">Fakes bold when the font has no bold weight. Turn off to draw bold text with the font\'s own weight. Needs a restart.</string>
+
+    <!-- Call translation -->
+    <string name="InuCallTranslate">Call translation</string>
+    <string name="InuCallTranslateInfo">Shows live translated subtitles during calls. Audio goes through your own proxy server with a Gemini key, nothing is stored.</string>
+    <string name="InuCallTranslateServer">Server</string>
+    <string name="InuCallTranslateEndpoint">Proxy endpoint</string>
+    <string name="InuCallTranslateToken">Device token</string>
+    <string name="InuCallTranslateLanguages">Languages</string>
+    <string name="InuCallTranslateLangIn">Incoming language</string>
+    <string name="InuCallTranslateLangOut">My language</string>
+    <string name="InuCallTranslateNotSet">not set</string>
+    <string name="InuCallTranslateHint">Subtitle languages are sent to the server with every call.</string>
 </resources>

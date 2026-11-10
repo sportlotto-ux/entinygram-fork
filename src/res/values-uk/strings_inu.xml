@@ -2211,4 +2211,16 @@
     <string name="InuAlwaysSendVideosHdInfo">Вибирає найвищу якість стиснення відео при надсиланні, незалежно від налаштувань економії трафіку.</string>
     <string name="InuFontSyntheticBold">Потовщувати жирний текст</string>
     <string name="InuFontSyntheticBoldInfo">Імітує жирний шрифт, якщо в шрифті немає жирного накреслення. Вимкніть, щоб жирний текст малювався власною товщиною шрифту. Потрібен перезапуск.</string>
+
+    <!-- Call translation -->
+    <string name="InuCallTranslate">Переклад дзвінків</string>
+    <string name="InuCallTranslateInfo">Показує живі субтитри з перекладом під час дзвінка. Звук іде через ваш власний проксі з ключем Gemini, нічого не зберігається.</string>
+    <string name="InuCallTranslateServer">Сервер</string>
+    <string name="InuCallTranslateEndpoint">Адреса проксі</string>
+    <string name="InuCallTranslateToken">Токен пристрою</string>
+    <string name="InuCallTranslateLanguages">Мови</string>
+    <string name="InuCallTranslateLangIn">Вхідна мова</string>
+    <string name="InuCallTranslateLangOut">Моя мова</string>
+    <string name="InuCallTranslateNotSet">не задано</string>
+    <string name="InuCallTranslateHint">Мови субтитрів передаються на сервер разом із кожним дзвінком.</string>
 </resources>

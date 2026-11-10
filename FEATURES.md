@@ -54,6 +54,7 @@ our own layer on top of the inugram patchset: restricted Telegram features, priv
 - 📡 **last seen**: remembers the last online time, so it stays visible after a contact hides their status
 - 📡 **presence logger**: per-contact online/offline history with notifications
 - 📡 **force relay calls**: route calls through Telegram servers to hide your IP
+- 📡 **live call translation**: translated subtitles on the call screen for both sides, through your own Gemini proxy
 - 📡 **censorship bypass**:
   - **WebSocket tunnel**: connect through Telegram Web endpoints, no third-party servers; excluded from settings backups - *inspired by [tg-ws-proxy](https://github.com/Flowseal/tg-ws-proxy) (@Flowseal) and [NimarkoGram](https://github.com/Ettacent/NimarkoGram)*
   - **block direct connections**: extra requests go only through your SOCKS5 proxy
